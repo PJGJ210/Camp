@@ -3,6 +3,8 @@
 #include <iostream>
 #include <math.h>
 #include <windows.h>
+#include <chrono>
+#include <thread>
 
 Game::Game()
 {
@@ -22,19 +24,13 @@ void Game::init()
 	//Set the game window size
 	SCREEN_WIDTH = 1080;
 	SCREEN_HEIGHT = 720;
-	FPS = 60;
+	FPS = 144;
+	updateTime = MStoS / FPS;
 	CurrFPS = 0;
-	//Doubles
-	previousTime = 0;
-	currentTime = 0;
-	elapsedTime = 0;
-	lagTime = 0;
-	updateTime = 0;
-	sleepTime = 0;
+	showFPS = true;
 	//Booleans
 	keepGoing = true;
-	std::cout << "FPS Init" << std::endl;
-	InitFPSCounter();
+
 	std::cout << "SDL Init" << std::endl;
 	InitSDL();
 }
@@ -42,8 +38,16 @@ void Game::init()
 void Game::InitSDL()
 {
 	CreateSDLWindow();
-	//loadMedia();
-	//cout << "Media Loaded" << endl;
+	std::cout << "TTF Init" << std::endl;
+	if (TTF_Init() < 0)
+	{
+		keepGoing = false;
+	}
+	if(!loadMedia())
+	{
+		keepGoing = false;
+	}
+	std::cout << "Media Loaded" << std::endl;
 }
 
 void Game::CreateSDLWindow() {
@@ -89,13 +93,6 @@ void Game::CreateSDLWindow() {
 	}
 }
 
-void Game::InitFPSCounter()
-{
-	previousTime = getTime();
-	FPS = 60;
-	updateTime = MStoS / FPS;
-	lagTime = 0.0;
-}
 double Game::getTime() {
 	return GetTickCount();
 }
@@ -106,7 +103,15 @@ void Game::Update()
 }
 void Game::Render()
 {
-
+	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	SDL_RenderClear(renderer);
+	if (showFPS)
+	{
+		DrawFPS(true, Black);
+		DrawFPS(false, White);
+	}
+	SDL_RenderPresent(renderer);
+	//SDL_UpdateWindowSurface( window );
 }
 
 void Game::Input() {
@@ -143,11 +148,11 @@ void Game::Input() {
 			std::cout << "e.wheel.y: " << e.wheel.y << std::endl;
 			if (e.wheel.y > 0)
 			{
-				
+				showFPS = true;
 			}
 			else if (e.wheel.y < 0) // scroll down
 			{
-				
+				showFPS = false;
 			}
 		}
 		//User requests quit
@@ -160,36 +165,120 @@ void Game::Input() {
 
 void Game::Loop()
 {
+	currentTime = std::chrono::system_clock::now();
+	fpsTime = std::chrono::system_clock::now();
+	priorTime = std::chrono::system_clock::now();
+	previousTime = currentTime;
 	//Run the Game loop
 	while (keepGoing) {
-		currentTime = getTime();
+		currentTime = std::chrono::system_clock::now();
 		//Calculate time delta
 		elapsedTime = currentTime - previousTime;
-		previousTime = currentTime;
-		lagTime += elapsedTime;
 		Input();
-		std::cout << "Got input " << std::endl;
 		//cout<<"updating"<<endl;
 		Update();
 
-		while (lagTime >= updateTime) {
-			//cout<<"updating"<<endl;
-			Update();
-			lagTime -= updateTime;
+		//Sleep if spending update did not take enough time
+		if (elapsedTime.count() < updateTime) {
+			std::chrono::duration<double, std::milli> delta_ms(updateTime - elapsedTime.count());
+			auto delta_ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(delta_ms);
+			std::this_thread::sleep_for(std::chrono::milliseconds(delta_ms_duration.count()));
 		}
 
-		if (lagTime < updateTime) {
-			sleepTime = updateTime - lagTime;
-			Sleep((DWORD)sleepTime);
+		previousTime = std::chrono::system_clock::now();
+		sleepTime = previousTime - currentTime;
+
+		//Do an fps count
+		fpsTime = std::chrono::system_clock::now();
+		elapsedfpsTime = fpsTime - priorTime;
+		if (elapsedfpsTime.count() > 1000)
+		{
+			CurrFPS = (int)(MStoS / (elapsedTime + sleepTime).count());
+			std::cout << "FPS: " << CurrFPS << std::endl;
+			priorTime = fpsTime;
 		}
-		CurrFPS = (int)(1 / ((elapsedTime / MStoS) + (sleepTime / MStoS)));
 		Render();
-		lagTime = 0.0;
-		//cout<<"Elapsed Time: "<<elapsedTime / MStoS<<endl;
-		//cout<<"Sleep Time: "<<sleepTime / MStoS<<endl;
-		//cout<<"Total Time: "<<(elapsedTime / MStoS)+(sleepTime / MStoS)<<endl;
-		//std::cout<<"FPS: "<< CurrFPS << std::endl;
+		//cout<<"Elapsed Time: "<< MStoS / elapsedTime <<endl;
+		//cout<<"Sleep Time: "<< MStoS / sleepTime <<endl;
 	}
+}
+
+void Game::DrawFPS(bool outline, SDL_Color color)
+{
+	if (Sans)
+	{
+		TTF_SetFontOutline(Sans, outline);
+		std::string CharFPS = std::to_string(CurrFPS);
+		//cout<<CharFPS.c_str()<<endl;
+		surfaceMessage = TTF_RenderText_Solid(Sans, CharFPS.c_str(), color); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
+		if (surfaceMessage == NULL)
+		{
+			printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+			keepGoing = false;
+		}
+		else
+		{
+			Message_rect.x = 0;  //controls the rect's x coordinate
+			Message_rect.y = 0; // controls the rect's y coordinte
+			Message_rect.w = surfaceMessage->w; // controls the width of the rect
+			Message_rect.h = surfaceMessage->h; // controls the height of the rect
+			Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage); //now you can convert it into a texture
+			if (Message == NULL)
+			{
+				printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
+				keepGoing = false;
+			}
+			else
+			{
+				SDL_RenderCopy(renderer, Message, NULL, &Message_rect);
+				SDL_DestroyTexture(Message);
+			}//end texture
+			SDL_FreeSurface(surfaceMessage);
+		}//end surface
+	}//end font
+}//end draw
+
+SDL_Surface* Game::loadSurface(std::string path)
+{
+	//Load image at specified path
+	SDL_Surface* loadedSurface = IMG_Load(path.c_str());
+	//Optimized surface for output
+	SDL_Surface* optimizedSurface = NULL;
+
+	if (loadedSurface == NULL)
+	{
+		std::cout << "Unable to load image %s! SDL Error: %s\n" << path.c_str() << SDL_GetError() << std::endl;
+	}
+	else
+	{
+		//Convert surface to screen format
+		optimizedSurface = SDL_ConvertSurface(loadedSurface, windowSurface->format, 0);
+		if (optimizedSurface == NULL)
+		{
+			printf("Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
+		}
+
+		//Get rid of old loaded surface
+		SDL_FreeSurface(loadedSurface);
+	}
+
+	return optimizedSurface;
+}
+
+bool Game::loadMedia()
+{
+	//Loading success flag
+	bool success = true;
+	//Load font
+	Sans = TTF_OpenFont("Media/fonts/OpenSans-Regular.ttf", 24);
+	if (!Sans)
+	{
+		std::cout << TTF_GetError() << std::endl;
+		success = false;
+	}
+	//Load Textures
+	//CreateTexture(KEY_PRESS_SURFACE_DEFAULT, "media/04_key_presses/press.bmp");
+	return success;
 }
 
 void Game::Destroy() {
