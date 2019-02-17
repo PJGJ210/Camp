@@ -1,4 +1,5 @@
 #pragma once
+#include "Entity.h"
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 //#undef main
@@ -21,9 +22,12 @@ private:
 	void Loop();
 	double getTime();
 	void InitSDL();
+	void InitEntity();
+	void InitMedia();
 	bool loadMedia();
 	void DrawFPS(bool outline, SDL_Color color);
 	SDL_Surface* loadSurface(std::string path);
+	SDL_Texture* CreateTexture(std::string path);
 	void Update();
 	void Render();
 	void Input();
@@ -61,5 +65,8 @@ private:
 	//Booleans
 	bool keepGoing;
 	bool showFPS;
+
+	//Entities
+	Entity testE;
 };
 

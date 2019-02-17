@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Entity.h"
 #include <string>
 #include <iostream>
 #include <math.h>
@@ -33,6 +34,8 @@ void Game::init()
 
 	std::cout << "SDL Init" << std::endl;
 	InitSDL();
+	InitEntity();
+	InitMedia();
 }
 
 void Game::InitSDL()
@@ -43,7 +46,16 @@ void Game::InitSDL()
 	{
 		keepGoing = false;
 	}
-	if(!loadMedia())
+}
+
+void Game::InitEntity()
+{
+	testE.SetRenderer(renderer);
+}
+
+void Game::InitMedia()
+{
+	if (!loadMedia())
 	{
 		keepGoing = false;
 	}
@@ -101,6 +113,7 @@ void Game::Update()
 {
 
 }
+
 void Game::Render()
 {
 	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -110,6 +123,7 @@ void Game::Render()
 		DrawFPS(true, Black);
 		DrawFPS(false, White);
 	}
+	testE.Draw();
 	SDL_RenderPresent(renderer);
 	//SDL_UpdateWindowSurface( window );
 }
@@ -125,18 +139,22 @@ void Game::Input() {
 			{
 			case SDLK_UP:
 				std::cout << "Up: " << std::endl;
+				testE.SetEyPos(testE.GetEyPos() - 1);
 				break;
 
 			case SDLK_DOWN:
 				std::cout << "Down: " << std::endl;
+				testE.SetEyPos(testE.GetEyPos() + 1);
 				break;
 
 			case SDLK_LEFT:
 				std::cout << "Left: " << std::endl;
+				testE.SetExPos(testE.GetExPos() - 1);
 				break;
 
 			case SDLK_RIGHT:
 				std::cout << "Right: " << std::endl;
+				testE.SetExPos(testE.GetExPos() + 1);
 				break;
 
 			default:
@@ -265,6 +283,22 @@ SDL_Surface* Game::loadSurface(std::string path)
 	return optimizedSurface;
 }
 
+SDL_Texture* Game::CreateTexture(std::string path)
+{
+	//Loading success flag
+	//bool success = true;
+	SDL_Surface* gSurface = loadSurface(path);
+	if (gSurface == NULL)
+	{
+		std::cout << "Failed to load : " << path << std::endl;
+		keepGoing = false;
+		return false;
+	}
+	else {
+		return SDL_CreateTextureFromSurface(renderer, gSurface);
+	}
+}
+
 bool Game::loadMedia()
 {
 	//Loading success flag
@@ -277,7 +311,9 @@ bool Game::loadMedia()
 		success = false;
 	}
 	//Load Textures
-	//CreateTexture(KEY_PRESS_SURFACE_DEFAULT, "media/04_key_presses/press.bmp");
+	std::cout << "Loading Player Media" << std::endl;
+	testE.SetSprite(CreateTexture("Media/images/Hole.png"));
+	std::cout << "Player Media Loaded" << std::endl;
 	return success;
 }
 
