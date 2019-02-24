@@ -1,5 +1,5 @@
 #pragma once
-#include "Entity.h"
+#include "Player.h"
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 //#undef main
@@ -17,6 +17,7 @@ public:
 private:
 	const double MStoS = 1000.0;
 	const double NStoMS = 1000000.0;
+	const Uint8* keystates;
 	//functions
 	void init();
 	void Loop();
@@ -26,8 +27,6 @@ private:
 	void InitMedia();
 	bool loadMedia();
 	void DrawFPS(bool outline, SDL_Color color);
-	SDL_Surface* loadSurface(std::string path);
-	SDL_Texture* CreateTexture(std::string path);
 	void Update();
 	void Render();
 	void Input();
@@ -67,6 +66,7 @@ private:
 	bool showFPS;
 
 	//Entities
-	Entity testE;
+	Player testP;
+	Player testE;
 };
 

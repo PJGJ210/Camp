@@ -28,9 +28,11 @@ void Game::init()
 	FPS = 144;
 	updateTime = MStoS / FPS;
 	CurrFPS = 0;
-	showFPS = true;
 	//Booleans
+	showFPS = true;
 	keepGoing = true;
+
+	keystates = SDL_GetKeyboardState(NULL);
 
 	std::cout << "SDL Init" << std::endl;
 	InitSDL();
@@ -50,7 +52,10 @@ void Game::InitSDL()
 
 void Game::InitEntity()
 {
+	testP.SetRenderer(renderer);
 	testE.SetRenderer(renderer);
+	testE.SetExPos(testP.GetExPos() + 500);
+	testE.SetEyPos(testP.GetEyPos());
 }
 
 void Game::InitMedia()
@@ -79,7 +84,7 @@ void Game::CreateSDLWindow() {
 	{
 		//Create window
 		window = SDL_CreateWindow("Camp", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);// | SDL_RENDERER_PRESENTVSYNC);
 		if (window == NULL)
 		{
 			std::cout << "Window could not be created! SDL_Error: %s\n" << SDL_GetError() << std::endl;
@@ -111,7 +116,15 @@ double Game::getTime() {
 
 void Game::Update()
 {
-
+	if (testP.CollidesWith(testE))
+	{
+		testP.DamageHealth(1);
+	}
+	if (!testP.Alive)
+	{
+		std::cout << "Player Destroyed" << std::endl;
+		keepGoing = false;
+	}
 }
 
 void Game::Render()
@@ -123,6 +136,7 @@ void Game::Render()
 		DrawFPS(true, Black);
 		DrawFPS(false, White);
 	}
+	testP.Draw();
 	testE.Draw();
 	SDL_RenderPresent(renderer);
 	//SDL_UpdateWindowSurface( window );
@@ -138,30 +152,22 @@ void Game::Input() {
 			switch (e.key.keysym.sym)
 			{
 			case SDLK_UP:
-				std::cout << "Up: " << std::endl;
-				testE.SetEyPos(testE.GetEyPos() - 1);
 				break;
 
 			case SDLK_DOWN:
-				std::cout << "Down: " << std::endl;
-				testE.SetEyPos(testE.GetEyPos() + 1);
 				break;
 
 			case SDLK_LEFT:
-				std::cout << "Left: " << std::endl;
-				testE.SetExPos(testE.GetExPos() - 1);
 				break;
 
 			case SDLK_RIGHT:
-				std::cout << "Right: " << std::endl;
-				testE.SetExPos(testE.GetExPos() + 1);
 				break;
 
 			default:
 				break;
 			}//end switch
 		}//end else
-		else if (e.type == SDL_MOUSEWHEEL) // scroll up
+		if (e.type == SDL_MOUSEWHEEL) // scroll up
 		{
 			std::cout << "e.wheel.y: " << e.wheel.y << std::endl;
 			if (e.wheel.y > 0)
@@ -174,11 +180,35 @@ void Game::Input() {
 			}
 		}
 		//User requests quit
-		else if (e.type == SDL_QUIT) {
+		if (e.type == SDL_QUIT) {
 			std::cout << "Quiting" << std::endl;
 			keepGoing = false;
 		}
 	}//end while event
+	if (keystates[SDL_SCANCODE_UP])
+	{
+		testP.SetEyPos(testP.GetEyPos() - 5);
+		//testP.HealHealth(1);
+		std::cout << "Up: " << std::endl;
+	}
+	if (keystates[SDL_SCANCODE_DOWN])
+	{
+		testP.SetEyPos(testP.GetEyPos() + 5);
+		//testP.HealMana(1);
+		std::cout << "Down: " << std::endl;
+	}
+	if (keystates[SDL_SCANCODE_LEFT])
+	{
+		testP.SetExPos(testP.GetExPos() - 5);
+		//testP.DamageMana(1);
+		std::cout << "Left: " << std::endl;
+	}
+	if (keystates[SDL_SCANCODE_RIGHT])
+	{
+		testP.SetExPos(testP.GetExPos() + 5);
+		//testP.DamageHealth(1);
+		std::cout << "Right: " << testP.Alive << std::endl;
+	}
 }//end input
 
 void Game::Loop()
@@ -256,49 +286,6 @@ void Game::DrawFPS(bool outline, SDL_Color color)
 	}//end font
 }//end draw
 
-SDL_Surface* Game::loadSurface(std::string path)
-{
-	//Load image at specified path
-	SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-	//Optimized surface for output
-	SDL_Surface* optimizedSurface = NULL;
-
-	if (loadedSurface == NULL)
-	{
-		std::cout << "Unable to load image %s! SDL Error: %s\n" << path.c_str() << SDL_GetError() << std::endl;
-	}
-	else
-	{
-		//Convert surface to screen format
-		optimizedSurface = SDL_ConvertSurface(loadedSurface, windowSurface->format, 0);
-		if (optimizedSurface == NULL)
-		{
-			printf("Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
-		}
-
-		//Get rid of old loaded surface
-		SDL_FreeSurface(loadedSurface);
-	}
-
-	return optimizedSurface;
-}
-
-SDL_Texture* Game::CreateTexture(std::string path)
-{
-	//Loading success flag
-	//bool success = true;
-	SDL_Surface* gSurface = loadSurface(path);
-	if (gSurface == NULL)
-	{
-		std::cout << "Failed to load : " << path << std::endl;
-		keepGoing = false;
-		return false;
-	}
-	else {
-		return SDL_CreateTextureFromSurface(renderer, gSurface);
-	}
-}
-
 bool Game::loadMedia()
 {
 	//Loading success flag
@@ -312,7 +299,8 @@ bool Game::loadMedia()
 	}
 	//Load Textures
 	std::cout << "Loading Player Media" << std::endl;
-	testE.SetSprite(CreateTexture("Media/images/Hole.png"));
+	testP.SetTexture("Media/images/Hole.png");
+	testE.SetTexture("Media/images/Hole_R.png");
 	std::cout << "Player Media Loaded" << std::endl;
 	return success;
 }
