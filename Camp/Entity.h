@@ -9,6 +9,10 @@ public:
 	Entity();
 	Entity(SDL_Renderer* renderer);
 	Entity(SDL_Renderer* renderer, int width, int height, int xPos, int yPos);
+	//Tile Sheets
+	SDL_Rect MoveClips[16];
+	SDL_Rect AttackClips[16];
+
 	void SetRenderer(SDL_Renderer* renderer);
 	void SetEheight(int height);
 	int GetExPos();

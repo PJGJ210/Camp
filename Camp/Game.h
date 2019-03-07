@@ -14,6 +14,13 @@ public:
 	Game();
 	~Game();
 
+	enum GameState
+	{
+		State_Main_Menu,
+		State_Play_Game,
+		State_Other
+	};
+
 private:
 	const double MStoS = 1000.0;
 	const double NStoMS = 1000000.0;
