@@ -13,8 +13,7 @@ Game::Game()
 	//Set Up Server info
 	std::cout << "Enter Server IP" << std::endl;
 	std::cin >> serverIP;
-	*Client = new UDP_Client(serverIP);
-	DoServer(serverIP);
+	*Client = UDP_Client(serverIP);
 	//Initialize
 	std::cout << "Pre-Initialization" << std::endl;
 	init();
