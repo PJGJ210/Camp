@@ -5,9 +5,10 @@
 
 using namespace std;
 
-Game game;
+//Game game;
 
 int main()
 {
+	Game game;
 	return (0);
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "Player.h"
+#include "UDP_Client.h"
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 //#undef main
@@ -25,6 +26,7 @@ private:
 	const double MStoS = 1000.0;
 	const double NStoMS = 1000000.0;
 	const Uint8* keystates;
+	std::string serverIP;
 	//functions
 	void init();
 	void Loop();
@@ -71,6 +73,9 @@ private:
 	//Booleans
 	bool keepGoing;
 	bool showFPS;
+
+	//Server Info
+	UDP_Client* Client; 
 
 	//Entities
 	Player testP;

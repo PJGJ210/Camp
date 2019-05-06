@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Entity.h"
+#include "UDP_Client.h"
 #include <string>
 #include <iostream>
 #include <math.h>
@@ -9,6 +10,11 @@
 
 Game::Game()
 {
+	//Set Up Server info
+	std::cout << "Enter Server IP" << std::endl;
+	std::cin >> serverIP;
+	*Client = new UDP_Client(serverIP);
+	DoServer(serverIP);
 	//Initialize
 	std::cout << "Pre-Initialization" << std::endl;
 	init();
@@ -18,7 +24,6 @@ Game::Game()
 	Destroy();
 	std::cout << "World has been destroyed" << std::endl;
 }
-
 
 void Game::init()
 {
