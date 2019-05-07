@@ -1,8 +1,9 @@
-#include "UDP_Server.h"
+#include "TCP_Server.h"
 #include <iostream>
-#include <WS2TCPip.h>
+#include <WS2tcpip.h>
 
-UDP_Server::UDP_Server()
+
+TCP_Server::TCP_Server()
 {
 	if (InitServer())
 	{
@@ -14,7 +15,7 @@ UDP_Server::UDP_Server()
 	std::cin;
 }
 
-bool UDP_Server::InitServer()
+bool TCP_Server::InitServer()
 {
 	//Winsock
 	wsVersion = MAKEWORD(2, 2);
@@ -33,7 +34,6 @@ bool UDP_Server::InitServer()
 	serverData.sin_family = AF_INET;
 	serverData.sin_port = htons(21000);
 	serverLength = sizeof(serverData);
-	serverIPLength = sizeof(serverIP);
 	if (bind(sServer, (sockaddr*)&serverData, serverLength) == SOCKET_ERROR)
 	{
 		std::cout << "Could not bind : " << WSAGetLastError() << std::endl;
@@ -44,14 +44,14 @@ bool UDP_Server::InitServer()
 	clientLength = sizeof(clientData);
 	ZeroMemory(&clientData, clientLength);
 
-	bufferLength = sizeof(buffer);
-	clientIPLength = sizeof(clientIP);
+	bufferLength = 1024;
+	clientIPLength = 256;
 
 	running = true;
 	return true;
 }
 
-void UDP_Server::RunServer()
+void TCP_Server::RunServer()
 {
 	std::cout << "Starting Main Server Loop" << std::endl;
 	//Looooop
@@ -72,21 +72,11 @@ void UDP_Server::RunServer()
 		inet_ntop(AF_INET, &clientData.sin_addr, clientIP, clientIPLength);
 
 		std::cout << "Data Received From : " << clientIP << " : " << buffer << std::endl;
-		SendData(buffer);
 	}
 	std::cout << "Leaving Main Server Loop" << std::endl;
 }
 
-void UDP_Server::SendData(std::string strData)
-{
-	if (sendto(sServer, strData.c_str(), sizeof(strData), 0, (sockaddr*)&clientData, clientLength) == SOCKET_ERROR)
-	{
-		std::cout << "Send Failed With : " << WSAGetLastError() << std::endl;
-	}
-	std::cout << "Data Sent" << std::endl;
-}
-
-void UDP_Server::CloseServer()
+void TCP_Server::CloseServer()
 {
 	//Close socket
 	closesocket(sServer);
@@ -94,6 +84,6 @@ void UDP_Server::CloseServer()
 	WSACleanup();
 }
 
-UDP_Server::~UDP_Server()
+TCP_Server::~TCP_Server()
 {
 }

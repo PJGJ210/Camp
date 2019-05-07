@@ -7,11 +7,14 @@ class UDP_Client
 {
 public:
 	UDP_Client();
-	UDP_Client(std::string IPAddr);
+	UDP_Client(std::string serverIP);
 	~UDP_Client();
 
 	bool InitClient();
+	void InitFD();
 	void RunClient();
+	void SendData(std::string strData);
+	void ReceiveData();
 	void CloseClient();
 
 	//WinSOCK
@@ -31,7 +34,9 @@ public:
 	int clientIPLength;
 	char clientIP[256];
 
-	std::string IPAddr;
+	int serverIPLength;
+	char serverIP[256];
+
 	std::string outdata;
 	bool running;
 };

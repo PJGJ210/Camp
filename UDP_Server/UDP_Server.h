@@ -10,6 +10,7 @@ public:
 
 	bool InitServer();
 	void RunServer();
+	void SendData(char * strData);
 	void SendData(std::string strData);
 	void CloseServer();
 

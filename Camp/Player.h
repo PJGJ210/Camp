@@ -36,6 +36,6 @@ private:
 	int Intelligence;
 	int Dexterity;
 
-	
+
 };
 

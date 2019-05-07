@@ -2,12 +2,13 @@
 #include <iostream>
 #include <WS2TCPip.h>
 
+
 UDP_Server::UDP_Server()
 {
 	if (InitServer())
 	{
 		RunServer();
-		CloseServer();
+		CloseServer(); 
 	}
 
 	std::cout << "Server Closed...";

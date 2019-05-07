@@ -24,17 +24,17 @@ void Player::Draw()
 
 	//Draw InfoRect
 	InfoRect.w = GetEwidth();
-	InfoRect.h = 2*(GetEheight() / 10);
+	InfoRect.h = 2 * (GetEheight() / 10);
 	InfoRect.x = GetExPos();
 	InfoRect.y = GetEyPos() - (InfoRect.h);
 	SDL_SetRenderDrawColor(Erenderer, 0, 0, 0, 0);
 	SDL_RenderFillRect(Erenderer, &InfoRect);
 
 	//Draw Health
-	HealthRect.w = std::min(GetEwidth(), (int) (GetEwidth() * ((double) Health / (double) MaxHealth)));
+	HealthRect.w = std::min(GetEwidth(), (int)(GetEwidth() * ((double)Health / (double)MaxHealth)));
 	HealthRect.h = GetEheight() / 10;
 	HealthRect.x = GetExPos();
-	HealthRect.y = GetEyPos() - (HealthRect.h*2);
+	HealthRect.y = GetEyPos() - (HealthRect.h * 2);
 	SDL_SetRenderDrawColor(Erenderer, 0, 255, 0, 0);
 	SDL_RenderFillRect(Erenderer, &HealthRect);
 

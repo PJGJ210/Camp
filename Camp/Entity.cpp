@@ -146,7 +146,7 @@ bool Entity::CollidesWithPrecise(Entity e)
 	int XwOffset;
 	int YxOffset;
 	int YwOffset;
-	if(Xx <= Xw)
+	if (Xx <= Xw)
 	{
 		LeftBound = Xw;
 		XxOffset = 0;
@@ -174,7 +174,7 @@ bool Entity::CollidesWithPrecise(Entity e)
 		YxOffset = 0;
 		BottomBound = Yz;
 	}
-	
+
 	for (int i = LeftBound; i < RightBound; i++)
 	{
 		for (int j = TopBound; j < BottomBound; j++)

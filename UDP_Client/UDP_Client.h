@@ -1,23 +1,24 @@
 #pragma once
 #include <iostream>
 #include <WS2TCPip.h>
+#include <string>
 
-class UDP_Server
+class UDP_Client
 {
 public:
-	UDP_Server();
-	~UDP_Server();
+	UDP_Client();
+	UDP_Client(std::string IPAddr);
+	~UDP_Client();
 
-	bool InitServer();
-	void RunServer();
-	void SendData(std::string strData);
-	void CloseServer();
+	bool InitClient();
+	void RunClient();
+	void CloseClient();
 
 	//WinSOCK
 	WSADATA wsData;
 	WORD wsVersion;
 	int ws0k;
-	SOCKET sServer;
+	SOCKET sClient;
 	sockaddr_in serverData;
 	int serverLength;
 
@@ -30,9 +31,8 @@ public:
 	int clientIPLength;
 	char clientIP[256];
 
-	int serverIPLength;
-	char serverIP[256];
-
+	std::string IPAddr;
+	std::string outdata;
 	bool running;
 };
 

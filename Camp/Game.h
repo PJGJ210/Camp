@@ -75,7 +75,7 @@ private:
 	bool showFPS;
 
 	//Server Info
-	UDP_Client* Client; 
+	UDP_Client* ptrClient;
 
 	//Entities
 	Player testP;

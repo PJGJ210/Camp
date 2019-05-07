@@ -13,7 +13,8 @@ Game::Game()
 	//Set Up Server info
 	std::cout << "Enter Server IP" << std::endl;
 	std::cin >> serverIP;
-	*Client = UDP_Client(serverIP);
+	UDP_Client Client = UDP_Client(serverIP);
+	ptrClient = &Client;
 	//Initialize
 	std::cout << "Pre-Initialization" << std::endl;
 	init();
@@ -156,15 +157,19 @@ void Game::Input() {
 			switch (e.key.keysym.sym)
 			{
 			case SDLK_UP:
+				ptrClient->SendData("U");
 				break;
 
 			case SDLK_DOWN:
+				ptrClient->SendData("D");
 				break;
 
 			case SDLK_LEFT:
+				ptrClient->SendData("L");
 				break;
 
 			case SDLK_RIGHT:
+				ptrClient->SendData("R");
 				break;
 
 			default:
@@ -229,7 +234,7 @@ void Game::Loop()
 		Input();
 		//cout<<"updating"<<endl;
 		Update();
-
+		ptrClient->ReceiveData();
 		//Sleep if spending update did not take enough time
 		if (elapsedTime.count() < updateTime) {
 			std::chrono::duration<double, std::milli> delta_ms(updateTime - elapsedTime.count());
@@ -315,6 +320,7 @@ void Game::Destroy() {
 	IMG_Quit();
 	//Quit SDL subsystems
 	SDL_Quit();
+	ptrClient->CloseClient();
 }
 Game::~Game()
 {
