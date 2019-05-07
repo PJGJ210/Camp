@@ -58,6 +58,7 @@ bool UDP_Client::InitClient()
 	if (iResult != NO_ERROR)
 	{
 		printf("ioctlsocket failed with error: %ld\n", iResult);
+		running = false;
 	}
 	running = true;
 	return true;
