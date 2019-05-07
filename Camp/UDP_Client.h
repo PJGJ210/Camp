@@ -11,7 +11,6 @@ public:
 	~UDP_Client();
 
 	bool InitClient();
-	void InitFD();
 	void RunClient();
 	void SendData(std::string strData);
 	void ReceiveData();
