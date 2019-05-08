@@ -1,8 +1,6 @@
 #include "UDP_Client.h"
 #include <string>
 
-
-
 UDP_Client::UDP_Client()
 {
 	strcpy_s(serverIP, "127.0.0.1");
