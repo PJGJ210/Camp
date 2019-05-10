@@ -172,6 +172,10 @@ void Game::Input() {
 				ptrClient->SendData("R");
 				break;
 
+			case SDLK_c:
+				ptrClient->SendData("C");
+				break;
+
 			default:
 				break;
 			}//end switch
@@ -196,25 +200,25 @@ void Game::Input() {
 	}//end while event
 	if (keystates[SDL_SCANCODE_UP])
 	{
-		testP.SetEyPos(testP.GetEyPos() - 5);
+		testP.SetEyPos(testP.GetEyPos() - 4.25f);
 		//testP.HealHealth(1);
 		std::cout << "Up: " << std::endl;
 	}
 	if (keystates[SDL_SCANCODE_DOWN])
 	{
-		testP.SetEyPos(testP.GetEyPos() + 5);
+		testP.SetEyPos(testP.GetEyPos() + 4.25f);
 		//testP.HealMana(1);
 		std::cout << "Down: " << std::endl;
 	}
 	if (keystates[SDL_SCANCODE_LEFT])
 	{
-		testP.SetExPos(testP.GetExPos() - 5);
+		testP.SetExPos(testP.GetExPos() - 4.25f);
 		//testP.DamageMana(1);
 		std::cout << "Left: " << std::endl;
 	}
 	if (keystates[SDL_SCANCODE_RIGHT])
 	{
-		testP.SetExPos(testP.GetExPos() + 5);
+		testP.SetExPos(testP.GetExPos() + 4.25f);
 		//testP.DamageHealth(1);
 		std::cout << "Right: " << testP.Alive << std::endl;
 	}

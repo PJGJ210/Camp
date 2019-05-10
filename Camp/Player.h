@@ -21,6 +21,7 @@ private:
 
 	void Die();
 
+	int PlayerID;
 	int Level;
 	int Experience;
 

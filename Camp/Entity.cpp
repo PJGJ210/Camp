@@ -24,7 +24,7 @@ Entity::Entity(SDL_Renderer* renderer)
 	EyPos = 100;
 }
 
-Entity::Entity(SDL_Renderer* renderer, int width, int height, int xPos, int yPos)
+Entity::Entity(SDL_Renderer* renderer, float width, float height, float xPos, float yPos)
 {
 	Erenderer = renderer;
 	Ewidth = width;
@@ -60,42 +60,42 @@ SDL_Texture* Entity::GetTexture()
 	return ETexture;
 }
 
-int Entity::GetEwidth()
+float Entity::GetEwidth()
 {
 	return Ewidth;
 }
 
-void Entity::WetEwidth(int width)
+void Entity::SetEwidth(float width)
 {
 	Ewidth = width;
 }
 
-int Entity::GetEheight()
+float Entity::GetEheight()
 {
 	return Eheight;
 }
 
-void Entity::SetEheight(int height)
+void Entity::SetEheight(float height)
 {
 	Eheight = height;
 }
 
-int Entity::GetExPos()
+float Entity::GetExPos()
 {
 	return ExPos;
 }
 
-void Entity::SetExPos(int xPos)
+void Entity::SetExPos(float xPos)
 {
 	ExPos = xPos;
 }
 
-int Entity::GetEyPos()
+float Entity::GetEyPos()
 {
 	return EyPos;
 }
 
-void Entity::SetEyPos(int yPos)
+void Entity::SetEyPos(float yPos)
 {
 	EyPos = yPos;
 }
@@ -133,54 +133,54 @@ bool Entity::CollidesWithPrecise(Entity e)
 	int TopBound;
 	int BottomBound;
 
-	int Xx = ExPos;
-	int Xy = ExPos + Ewidth;
-	int Xw = e.ExPos;
-	int Xz = e.ExPos + e.Ewidth;
-	int Yx = EyPos;
-	int Yy = EyPos + Eheight;
-	int Yw = e.EyPos;
-	int Yz = e.EyPos + e.Eheight;
+	float Xx = ExPos;
+	float Xy = ExPos + Ewidth;
+	float Xw = e.ExPos;
+	float Xz = e.ExPos + e.Ewidth;
+	float Yx = EyPos;
+	float Yy = EyPos + Eheight;
+	float Yw = e.EyPos;
+	float Yz = e.EyPos + e.Eheight;
 
-	int XxOffset;
-	int XwOffset;
-	int YxOffset;
-	int YwOffset;
+	float XxOffset;
+	float XwOffset;
+	float YxOffset;
+	float YwOffset;
 	if (Xx <= Xw)
 	{
-		LeftBound = Xw;
+		LeftBound = (int)Xw;
 		XxOffset = 0;
 		XwOffset = Xx - Xw;
-		RightBound = Xy;
+		RightBound = (int)Xy;
 	}
 	else
 	{
-		LeftBound = Xx;
+		LeftBound = (int)Xx;
 		XxOffset = Xw - Xx;
 		XwOffset = 0;
-		RightBound = Xz;
+		RightBound = (int)Xz;
 	}
 	if (Yx <= Yw)
 	{
-		TopBound = Yw;
+		TopBound = (int)Yw;
 		YxOffset = 0;
 		YwOffset = Yx - Yw;
-		BottomBound = Yy;
+		BottomBound = (int)Yy;
 	}
 	else
 	{
-		TopBound = Yx;
+		TopBound = (int)Yx;
 		YwOffset = Yw - Yx;
 		YxOffset = 0;
-		BottomBound = Yz;
+		BottomBound = (int)Yz;
 	}
 
 	for (int i = LeftBound; i < RightBound; i++)
 	{
 		for (int j = TopBound; j < BottomBound; j++)
 		{
-			int ColorA = GetPixelColor(ESurface, XxOffset + (RightBound - i), YxOffset + (BottomBound - j)).a;
-			int ColorB = e.GetPixelColor(e.GetSurface(), XwOffset + (RightBound - i), YwOffset + (BottomBound - j)).a;
+			int ColorA = GetPixelColor(ESurface, (int)XxOffset + (RightBound - i), (int)YxOffset + (BottomBound - j)).a;
+			int ColorB = e.GetPixelColor(e.GetSurface(), (int)XwOffset + (RightBound - i), (int)YwOffset + (BottomBound - j)).a;
 			if (ColorA != 0 && ColorB != 0)
 			{
 				return true;
@@ -192,10 +192,10 @@ bool Entity::CollidesWithPrecise(Entity e)
 
 void Entity::Draw()
 {
-	EstretchRect.w = Ewidth;
-	EstretchRect.h = Eheight;
-	EstretchRect.x = ExPos;
-	EstretchRect.y = EyPos;
+	EstretchRect.w = (int)Ewidth;
+	EstretchRect.h = (int)Eheight;
+	EstretchRect.x = (int)ExPos;
+	EstretchRect.y = (int)EyPos;
 	SDL_RenderCopy(Erenderer, ETexture, NULL, &EstretchRect);
 }
 

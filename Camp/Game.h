@@ -73,6 +73,7 @@ private:
 	//Booleans
 	bool keepGoing;
 	bool showFPS;
+	bool singlePlayer;
 
 	//Server Info
 	UDP_Client* ptrClient;

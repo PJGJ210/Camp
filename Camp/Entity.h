@@ -8,17 +8,17 @@ class Entity
 public:
 	Entity();
 	Entity(SDL_Renderer* renderer);
-	Entity(SDL_Renderer* renderer, int width, int height, int xPos, int yPos);
+	Entity(SDL_Renderer* renderer, float width, float height, float xPos, float yPos);
 	//Tile Sheets
 	SDL_Rect MoveClips[16];
 	SDL_Rect AttackClips[16];
 
 	void SetRenderer(SDL_Renderer* renderer);
-	void SetEheight(int height);
-	int GetExPos();
-	void SetExPos(int xPos);
-	int GetEyPos();
-	void SetEyPos(int yPos);
+	void SetEheight(float height);
+	float GetExPos();
+	void SetExPos(float xPos);
+	float GetEyPos();
+	void SetEyPos(float yPos);
 	bool CollidesWith(Entity e);
 	SDL_Color GetPixelColor(SDL_Surface * pSurface, const int X, const int Y);
 	bool CollidesWithPrecise(Entity e);
@@ -27,9 +27,9 @@ public:
 	SDL_Surface* GetSurface();
 	void SetTexture(std::string str);
 	SDL_Texture* GetTexture();
-	int GetEwidth();
-	void WetEwidth(int width);
-	int GetEheight();
+	float GetEwidth();
+	void SetEwidth(float width);
+	float GetEheight();
 	//SDL Stuff
 	SDL_Renderer* Erenderer;
 	~Entity();
@@ -40,10 +40,10 @@ private:
 	SDL_Texture* ETexture;
 	SDL_Rect* ESprite;
 	//Entity Info
-	int Ewidth;
-	int Eheight;
-	int ExPos;
-	int EyPos;
+	float Ewidth;
+	float Eheight;
+	float ExPos;
+	float EyPos;
 
 };
 

@@ -23,36 +23,36 @@ void Player::Draw()
 	Entity::Draw();
 
 	//Draw InfoRect
-	InfoRect.w = GetEwidth();
-	InfoRect.h = 2 * (GetEheight() / 10);
-	InfoRect.x = GetExPos();
-	InfoRect.y = GetEyPos() - (InfoRect.h);
+	InfoRect.w = (int)GetEwidth();
+	InfoRect.h = 2 * ((int)GetEheight() / 10);
+	InfoRect.x = (int)GetExPos();
+	InfoRect.y = (int)GetEyPos() - (InfoRect.h);
 	SDL_SetRenderDrawColor(Erenderer, 0, 0, 0, 0);
 	SDL_RenderFillRect(Erenderer, &InfoRect);
 
 	//Draw Health
-	HealthRect.w = std::min(GetEwidth(), (int)(GetEwidth() * ((double)Health / (double)MaxHealth)));
-	HealthRect.h = GetEheight() / 10;
-	HealthRect.x = GetExPos();
-	HealthRect.y = GetEyPos() - (HealthRect.h * 2);
+	HealthRect.w = std::min((int)GetEwidth(), (int)(GetEwidth() * ((double)Health / (double)MaxHealth)));
+	HealthRect.h = (int)GetEheight() / 10;
+	HealthRect.x = (int)GetExPos();
+	HealthRect.y = (int)GetEyPos() - (HealthRect.h * 2);
 	SDL_SetRenderDrawColor(Erenderer, 0, 255, 0, 0);
 	SDL_RenderFillRect(Erenderer, &HealthRect);
 
 	//Draw Mana
-	ManaRect.w = std::min(GetEwidth(), (int)(GetEwidth() * ((double)Mana / (double)MaxMana)));
-	ManaRect.h = GetEheight() / 10;
-	ManaRect.x = GetExPos();
-	ManaRect.y = GetEyPos() - ManaRect.h;
+	ManaRect.w = std::min((int)GetEwidth(), (int)(GetEwidth() * ((double)Mana / (double)MaxMana)));
+	ManaRect.h = (int)GetEheight() / 10;
+	ManaRect.x = (int)GetExPos();
+	ManaRect.y = (int)GetEyPos() - ManaRect.h;
 	SDL_SetRenderDrawColor(Erenderer, 0, 0, 255, 0);
 	SDL_RenderFillRect(Erenderer, &ManaRect);
 }
 
 void Player::DrawInfo()
 {
-	HealthRect.w = GetEwidth();
-	HealthRect.h = GetEwidth() / 10;
-	HealthRect.x = GetExPos();
-	HealthRect.y = GetEyPos() + HealthRect.h;
+	HealthRect.w = (int)GetEwidth();
+	HealthRect.h = (int)GetEwidth() / 10;
+	HealthRect.x = (int)GetExPos();
+	HealthRect.y = (int)GetEyPos() + HealthRect.h;
 	SDL_RenderDrawRect(Erenderer, &HealthRect);
 }
 
