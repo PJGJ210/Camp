@@ -29,6 +29,8 @@ private:
 	std::string serverIP;
 	//functions
 	void init();
+	void HandlePacket(char * buffer);
+	std::string CopyBuffer(int start, int end, char * buffer);
 	void Loop();
 	double getTime();
 	void InitSDL();

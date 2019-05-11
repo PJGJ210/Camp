@@ -95,9 +95,9 @@ void UDP_Server::Broadcast(std::string strData)
 {
 	for (int i = 0; i < MaxPlayers; i++)
 	{
-		std::cout << Clients[i].playerID << std::endl;
 		if (Clients[i].playerID.compare("00") != 0)
 		{
+			std::cout << Clients[i].playerID.c_str() << std::endl;
 			clientData.sin_addr.S_un.S_addr = Clients[i].Network.address;
 			clientData.sin_port = Clients[i].Network.port;
 			if (sendto(sServer, strData.c_str(), sizeof(strData), 0, (sockaddr*)&clientData, clientLength) == SOCKET_ERROR)
@@ -117,8 +117,24 @@ bool UDP_Server::ReceivePacket()
 	bytesIn = recvfrom(sServer, buffer, bufferLength, 0, (sockaddr*)&clientData, &clientLength);
 	if (bytesIn == SOCKET_ERROR)
 	{
+		//check for disconnect and renew the slot if disconnected
+		if (WSAGetLastError() == 10054)
+		{
+			int address = clientData.sin_addr.S_un.S_addr;
+			short port = clientData.sin_port;
+			//check if player is already connected
+			for (int i = 0; i < MaxPlayers; i++)
+			{
+				if (Clients[i].Network.GetAddress() == address && Clients[i].Network.port == port)
+				{
+					std::cout << "Client disconnected : " << i << std::endl;
+					Clients[i] = Client();
+					return false;
+				}
+			}
+		}
 		std::cout << "Could not get client data : " << WSAGetLastError() << std::endl;
-		running = false;
+		return false;
 	}
 
 	if (bytesIn > 0)
@@ -149,17 +165,18 @@ void UDP_Server::HandlePacket()
 	//deal with player ID if exists 1-2
 	std::string PlayerID = CopyBuffer(1, 2);
 	int iPlayerID = std::atoi(PlayerID.c_str());
+	std::cout << PlayerID << ":" << iPlayerID <<  std::endl;
 	//deal with action 3
 	switch (buffer[3])
 	{
 	case 'C':
 		//if playerID is 0 then make a new player and assign an ID
 		std::cout << "Case : C" << std::endl;
-		ConnectClient(iPlayerID);
+		ConnectClient(PlayerID);
 		break;
 	case 'X':
 		std::cout << "Case : X" << std::endl;
-		Broadcast("X");
+		Broadcast("X : " + PlayerID);
 		break;
 	case 'L':
 		std::cout << "Case : L" << std::endl;
@@ -180,41 +197,61 @@ void UDP_Server::HandlePacket()
 	}
 }
 
-void UDP_Server::ConnectClient(int PlayerID)
+void UDP_Server::ConnectClient(std::string PlayerID)
 {
+	int address = clientData.sin_addr.S_un.S_addr;
+	short port = clientData.sin_port;
+	//check if player is already connected
+	for (int i = 0; i < MaxPlayers; i++)
+	{
+		if (Clients[i].Network.GetAddress() == address && Clients[i].Network.port == port)
+		{
+			std::cout << Clients[i].playerID << "Already Assigned!" << std::endl;
+			SendData("1" + Clients[i].playerID + "A");
+			return;
+		}
+	}
+	//check for an empty slot
 	for (int i = 0; i < MaxPlayers; i++)
 	{
 		std::cout << Clients[i].playerID << " : " << Clients[i].playerID.compare("00") << std::endl;
 		if (Clients[i].playerID.compare("00") == 0)
 		{
-			Clients[i] = Client(clientData.sin_addr.S_un.S_addr, clientData.sin_port);
+			//Clients[i] = Client(clientData.sin_addr.S_un.S_addr, clientData.sin_port);
+			Clients[i] = Client(address, port);
 			std::cout << "Assigning" << std::endl;
 			char pID[2];
-			if (PlayerID)
+			if (PlayerID.compare("00") != 0)
 			{
-				Clients[i].playerID = snprintf(pID, 2, "%02d", PlayerID);
-				std::cout << Clients[i].playerID << " Assigned!" << std::endl;
+				Clients[i].playerID = PlayerID;
+				std::cout << Clients[i].playerID << "Given Assigned!" << std::endl;
+				SendData("1" + Clients[i].playerID + "A");
 				return;
 			}
 			else
 			{
-				NextPlayerID++;
-				Clients[i].playerID = snprintf(pID, 2, "%02d", NextPlayerID);
-				std::cout << Clients[i].playerID << " Assigned!" << std::endl;
+				std::stringstream ss;
+				ss << std::setw(2) << std::setfill('0') << i+1;
+				std::string s = ss.str();
+				Clients[i].playerID = s;
+				std::cout << Clients[i].playerID << "New Assigned!" << std::endl;
+				SendData("1"+ Clients[i].playerID + "A");
 				return;
 			}
 		}
 	}
+	std::cout << "Server Full!" << std::endl;
+	SendData("100R");
 }
 
 std::string UDP_Server::CopyBuffer(int start, int end)
 {
-	char* CharArray = new char[end - start];
-	for (int i = start; i < end; i++)
+	std::string stringBuild = "";
+	for (int i = start; i <= end; i++)
 	{
-		CharArray[i - start] = buffer[i];
+		stringBuild += buffer[i];
 	}
-	return (std::string)CharArray;
+	return stringBuild;
 }
 
 void UDP_Server::CloseServer()

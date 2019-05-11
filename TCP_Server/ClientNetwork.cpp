@@ -1,6 +1,5 @@
 #include "ClientNetwork.h"
-
-
+#include <iostream>
 
 ClientNetwork::ClientNetwork()
 {

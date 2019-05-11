@@ -3,6 +3,9 @@
 #include <WS2TCPip.h>
 #include "Client.h"
 #include <string>
+#include <sstream>
+#include <iomanip>
+
 
 class UDP_Server
 {
@@ -29,7 +32,7 @@ public:
 	void Broadcast(std::string strData);
 	bool ReceivePacket();
 	void HandlePacket();
-	void ConnectClient(int PlayerID);
+	void ConnectClient(std::string PlayerID);
 	std::string CopyBuffer(int start, int end);
 	void CloseServer();
 
@@ -55,7 +58,6 @@ public:
 
 	Client* Clients;
 	int MaxPlayers = 10;
-	int NextPlayerID;
 
 	bool running;
 };

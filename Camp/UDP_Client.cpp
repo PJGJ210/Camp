@@ -86,7 +86,7 @@ void UDP_Client::SendData(std::string strData)
 	//std::cout << "Data Sent" << std::endl;
 }
 
-void UDP_Client::ReceiveData()
+char* UDP_Client::ReceiveData()
 {
 	ZeroMemory(buffer, bufferLength);
 	//get messages
@@ -104,8 +104,14 @@ void UDP_Client::ReceiveData()
 		if (buffer > 0)
 		{
 			std::cout << "Data Received From : " << serverIP << " : " << buffer << std::endl;
+			return buffer;
+		}
+		else
+		{
+			return nullptr;
 		}
 	}
+	return nullptr;
 }
 
 void UDP_Client::CloseClient()

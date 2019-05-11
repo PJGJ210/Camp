@@ -26,7 +26,7 @@ public:
 	bool InitClient();
 	void RunClient();
 	void SendData(std::string strData);
-	void ReceiveData();
+	char* ReceiveData();
 	void CloseClient();
 
 	//WinSOCK

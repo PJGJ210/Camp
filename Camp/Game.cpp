@@ -121,6 +121,7 @@ double Game::getTime() {
 
 void Game::Update()
 {
+	//HandlePacket(ptrClient->ReceiveData);
 	if (testP.CollidesWith(testE))
 	{
 		testP.DamageHealth(1);
@@ -240,6 +241,59 @@ void Game::Input() {
 		std::cout << "Right: " << testP.Alive << std::endl;
 	}
 }//end input
+
+
+void Game::HandlePacket(char* buffer)
+{
+	//deal with type of packet
+	std::cout << ptrClient->buffer[0] << std::endl;
+	switch (buffer[0])
+	{
+	case '1':
+		break;
+	case '2':
+		break;
+	}
+	//deal with player ID if exists 1-2
+	std::string PlayerID = CopyBuffer(1, 2, buffer);
+	int iPlayerID = std::atoi(PlayerID.c_str());
+	std::cout << PlayerID << ":" << iPlayerID << std::endl;
+	//deal with action 3
+	switch (buffer[3])
+	{
+	case 'C':
+		std::cout << "Case : C" << std::endl;
+		break;
+	case 'A':
+		std::cout << "Case : A" << std::endl;
+		break;
+	case 'X':
+		std::cout << "Case : X" << std::endl;
+		break;
+	case 'L':
+		std::cout << "Case : L" << std::endl;
+		break;
+	case 'U':
+		std::cout << "Case : U" << std::endl;
+		break;
+	case 'D':
+		std::cout << "Case : D" << std::endl;
+		break;
+	case 'R':
+		std::cout << "Case : R" << std::endl;
+		break;
+	}
+}
+
+std::string Game::CopyBuffer(int start, int end, char* buffer)
+{
+	std::string stringBuild = "";
+	for (int i = start; i <= end; i++)
+	{
+		stringBuild += buffer[i];
+	}
+	return stringBuild;
+}
 
 void Game::Loop()
 {

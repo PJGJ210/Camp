@@ -17,6 +17,11 @@ void Client::SetNetwork(int address, short port)
 	Network = ClientNetwork(address, port);
 }
 
+std::string Client::GetplayerID()
+{
+	return playerID;
+}
+
 
 Client::~Client()
 {
