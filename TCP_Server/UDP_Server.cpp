@@ -1,6 +1,7 @@
 #include "UDP_Server.h"
 #include <iostream>
 #include <WS2TCPip.h>
+#include "Client.h"
 
 UDP_Server::UDP_Server()
 {
@@ -41,11 +42,21 @@ bool UDP_Server::InitServer()
 	}
 	std::cout << "Server Bound" << std::endl;
 
+	u_long nonblocking = 1;
+	int iResult = ioctlsocket(sServer, FIONBIO, &nonblocking);
+	if (iResult != NO_ERROR)
+	{
+		printf("ioctlsocket failed with error: %ld\n", iResult);
+		running = false;
+	}
+
 	clientLength = sizeof(clientData);
 	ZeroMemory(&clientData, clientLength);
 
 	bufferLength = sizeof(buffer);
 	clientIPLength = sizeof(clientIP);
+
+	Clients = new Client[MaxPlayers];
 
 	running = true;
 	return true;

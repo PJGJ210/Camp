@@ -19,9 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Client.h" />
+    <ClInclude Include="ClientNetwork.h" />
     <ClInclude Include="UDP_Server.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="ClientNetwork.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="UDP_Server.cpp" />
   </ItemGroup>

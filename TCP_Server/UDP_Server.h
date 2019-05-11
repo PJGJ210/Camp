@@ -1,12 +1,26 @@
 #pragma once
 #include <iostream>
 #include <WS2TCPip.h>
+#include "Client.h"
 
 class UDP_Server
 {
 public:
 	UDP_Server();
 	~UDP_Server();
+
+	enum class Client_Message
+	{
+		Join,      // tell server we're new here
+		Leave,      // tell server we're leaving
+		Input       // tell server our user input
+	};
+
+	enum class Server_Message
+	{
+		Join_Result,// tell client they're accepted/rejected
+		State       // tell client game state
+	};
 
 	bool InitServer();
 	void RunServer();
@@ -32,6 +46,9 @@ public:
 
 	int serverIPLength;
 	char serverIP[256];
+
+	Client* Clients;
+	int MaxPlayers = 10;
 
 	bool running;
 };
