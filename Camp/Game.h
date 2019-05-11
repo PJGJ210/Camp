@@ -74,6 +74,7 @@ private:
 	bool keepGoing;
 	bool showFPS;
 	bool singlePlayer;
+	std::string playerID;
 
 	//Server Info
 	UDP_Client* ptrClient;

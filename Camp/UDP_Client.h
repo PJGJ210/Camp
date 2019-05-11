@@ -10,6 +10,19 @@ public:
 	UDP_Client(std::string serverIP);
 	~UDP_Client();
 
+	enum class Client_Message: int8_t
+	{
+		Join,      // tell server we're new here
+		Leave,      // tell server we're leaving
+		Input       // tell server our user input
+	};
+
+	enum class Server_Message : int8_t
+	{
+		Join_Result,// tell client they're accepted/rejected
+		State       // tell client game state
+	};
+
 	bool InitClient();
 	void RunClient();
 	void SendData(std::string strData);

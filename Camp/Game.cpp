@@ -36,7 +36,7 @@ void Game::init()
 	//Booleans
 	showFPS = true;
 	keepGoing = true;
-
+	playerID = "00";
 	keystates = SDL_GetKeyboardState(NULL);
 
 	std::cout << "SDL Init" << std::endl;
@@ -149,31 +149,48 @@ void Game::Render()
 
 void Game::Input() {
 	//Handle events on queue
-	while (SDL_PollEvent(&e) != 0) {
+	while (SDL_PollEvent(&e)) {
 		//User presses a key
 		if (e.type == SDL_KEYDOWN)
 		{
+			std::string outputdata;
 			//Select surfaces based on key press
 			switch (e.key.keysym.sym)
 			{
 			case SDLK_UP:
-				ptrClient->SendData("U");
+				outputdata = std::to_string(3) + playerID + "U";
+				std::cout << outputdata << std::endl;
+				ptrClient->SendData(outputdata);
 				break;
 
 			case SDLK_DOWN:
-				ptrClient->SendData("D");
+				outputdata = std::to_string(3) + playerID + "D";
+				std::cout << outputdata << std::endl;
+				ptrClient->SendData(outputdata);
 				break;
 
 			case SDLK_LEFT:
-				ptrClient->SendData("L");
+				outputdata = std::to_string(3) + playerID + "L";
+				std::cout << outputdata << std::endl;
+				ptrClient->SendData(outputdata);
 				break;
 
 			case SDLK_RIGHT:
-				ptrClient->SendData("R");
+				outputdata = std::to_string(3) + playerID + "R";
+				std::cout << outputdata << std::endl;
+				ptrClient->SendData(outputdata);
 				break;
 
 			case SDLK_c:
-				ptrClient->SendData("C");
+				outputdata = std::to_string(1) + playerID + "C";
+				std::cout << outputdata << std::endl;
+				ptrClient->SendData(outputdata);
+				break;
+
+			case SDLK_x:
+				outputdata = std::to_string(2) + playerID + "X";
+				std::cout << outputdata << std::endl;
+				ptrClient->SendData(outputdata);
 				break;
 
 			default:

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <WS2TCPip.h>
 #include "Client.h"
+#include <string>
 
 class UDP_Server
 {
@@ -9,14 +10,14 @@ public:
 	UDP_Server();
 	~UDP_Server();
 
-	enum class Client_Message
+	enum class Client_Message : int8_t
 	{
 		Join,      // tell server we're new here
 		Leave,      // tell server we're leaving
 		Input       // tell server our user input
 	};
 
-	enum class Server_Message
+	enum class Server_Message : int8_t
 	{
 		Join_Result,// tell client they're accepted/rejected
 		State       // tell client game state
@@ -25,6 +26,11 @@ public:
 	bool InitServer();
 	void RunServer();
 	void SendData(std::string strData);
+	void Broadcast(std::string strData);
+	bool ReceivePacket();
+	void HandlePacket();
+	void ConnectClient(int PlayerID);
+	std::string CopyBuffer(int start, int end);
 	void CloseServer();
 
 	//WinSOCK
@@ -49,6 +55,7 @@ public:
 
 	Client* Clients;
 	int MaxPlayers = 10;
+	int NextPlayerID;
 
 	bool running;
 };
