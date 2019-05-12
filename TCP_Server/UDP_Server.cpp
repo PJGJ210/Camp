@@ -42,13 +42,13 @@ bool UDP_Server::InitServer()
 	}
 	std::cout << "Server Bound" << std::endl;
 
-	/*u_long nonblocking = 1;
+	u_long nonblocking = 1;
 	int iResult = ioctlsocket(sServer, FIONBIO, &nonblocking);
 	if (iResult != NO_ERROR)
 	{
 		printf("ioctlsocket failed with error: %ld\n", iResult);
 		running = false;
-	}*/
+	}
 
 	clientLength = sizeof(clientData);
 	ZeroMemory(&clientData, clientLength);
@@ -113,28 +113,30 @@ bool UDP_Server::ReceivePacket()
 {
 	ZeroMemory(buffer, bufferLength);
 	//get messages
-	std::cout << "Listening For Client" << std::endl;
-	bytesIn = recvfrom(sServer, buffer, bufferLength, 0, (sockaddr*)&clientData, &clientLength);
-	if (bytesIn == SOCKET_ERROR)
+	//std::cout << "Listening For Client" << std::endl;
+	if (bytesIn = recvfrom(sServer, buffer, bufferLength, 0, (sockaddr*)&clientData, &clientLength) >= 0)
 	{
-		//check for disconnect and renew the slot if disconnected
-		if (WSAGetLastError() == 10054)
+		if (bytesIn == SOCKET_ERROR)
 		{
-			int address = clientData.sin_addr.S_un.S_addr;
-			short port = clientData.sin_port;
-			//check if player is already connected
-			for (int i = 0; i < MaxPlayers; i++)
+			//check for disconnect and renew the slot if disconnected
+			if (WSAGetLastError() == 10054)
 			{
-				if (Clients[i].Network.GetAddress() == address && Clients[i].Network.port == port)
+				int address = clientData.sin_addr.S_un.S_addr;
+				short port = clientData.sin_port;
+				//check if player is already connected
+				for (int i = 0; i < MaxPlayers; i++)
 				{
-					std::cout << "Client disconnected : " << i << std::endl;
-					Clients[i] = Client();
-					return false;
+					if (Clients[i].Network.GetAddress() == address && Clients[i].Network.port == port)
+					{
+						std::cout << "Client disconnected : " << i << std::endl;
+						Clients[i] = Client();
+						return false;
+					}
 				}
 			}
+			std::cout << "Could not get client data : " << WSAGetLastError() << std::endl;
+			return false;
 		}
-		std::cout << "Could not get client data : " << WSAGetLastError() << std::endl;
-		return false;
 	}
 
 	if (bytesIn > 0)
