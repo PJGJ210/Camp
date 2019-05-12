@@ -114,29 +114,27 @@ bool UDP_Server::ReceivePacket()
 	ZeroMemory(buffer, bufferLength);
 	//get messages
 	//std::cout << "Listening For Client" << std::endl;
-	if (bytesIn = recvfrom(sServer, buffer, bufferLength, 0, (sockaddr*)&clientData, &clientLength) >= 0)
+	bytesIn = recvfrom(sServer, buffer, bufferLength, 0, (sockaddr*)&clientData, &clientLength);
+	if (bytesIn == SOCKET_ERROR)
 	{
-		if (bytesIn == SOCKET_ERROR)
+		//check for disconnect and renew the slot if disconnected
+		if (WSAGetLastError() == 10054)
 		{
-			//check for disconnect and renew the slot if disconnected
-			if (WSAGetLastError() == 10054)
+			int address = clientData.sin_addr.S_un.S_addr;
+			short port = clientData.sin_port;
+			//check if player is already connected
+			for (int i = 0; i < MaxPlayers; i++)
 			{
-				int address = clientData.sin_addr.S_un.S_addr;
-				short port = clientData.sin_port;
-				//check if player is already connected
-				for (int i = 0; i < MaxPlayers; i++)
+				if (Clients[i].Network.GetAddress() == address && Clients[i].Network.port == port)
 				{
-					if (Clients[i].Network.GetAddress() == address && Clients[i].Network.port == port)
-					{
-						std::cout << "Client disconnected : " << i << std::endl;
-						Clients[i] = Client();
-						return false;
-					}
+					std::cout << "Client disconnected : " << i << std::endl;
+					Clients[i] = Client();
+					return false;
 				}
 			}
-			std::cout << "Could not get client data : " << WSAGetLastError() << std::endl;
-			return false;
 		}
+		//std::cout << "Could not get client data : " << WSAGetLastError() << std::endl;
+		return false;
 	}
 
 	if (bytesIn > 0)
