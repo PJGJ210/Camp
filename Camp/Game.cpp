@@ -400,5 +400,3 @@ void Game::Destroy() {
 Game::~Game()
 {
 }
-
-
