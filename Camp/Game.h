@@ -26,6 +26,7 @@ private:
 	const double MStoS = 1000.0;
 	const double NStoMS = 1000000.0;
 	const Uint8* keystates;
+	const int MaxPlayers = 10;
 	std::string serverIP;
 	//functions
 	void init();
@@ -82,6 +83,7 @@ private:
 	UDP_Client* ptrClient;
 
 	//Entities
+	Player* Players;
 	Player testP;
 	Player testE;
 };

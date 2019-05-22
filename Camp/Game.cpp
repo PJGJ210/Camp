@@ -37,6 +37,11 @@ void Game::init()
 	showFPS = true;
 	keepGoing = true;
 	playerID = "00";
+	Players = new Player[10];
+	for (int i = 0; i < MaxPlayers; i++)
+	{
+		Players[i] = Player();
+	}
 	keystates = SDL_GetKeyboardState(NULL);
 
 	std::cout << "SDL Init" << std::endl;
@@ -57,10 +62,10 @@ void Game::InitSDL()
 
 void Game::InitEntity()
 {
-	testP.SetRenderer(renderer);
-	testE.SetRenderer(renderer);
-	testE.SetExPos(testP.GetExPos() + 500);
-	testE.SetEyPos(testP.GetEyPos());
+	//testP.SetRenderer(renderer);
+	//testE.SetRenderer(renderer);
+	//testE.SetExPos(testP.GetExPos() + 500);
+	//testE.SetEyPos(testP.GetEyPos());
 }
 
 void Game::InitMedia()
@@ -121,8 +126,12 @@ double Game::getTime() {
 
 void Game::Update()
 {
-	//HandlePacket(ptrClient->ReceiveData);
-	if (testP.CollidesWith(testE))
+	char* buffer = ptrClient->ReceiveData();
+	if (buffer) 
+	{
+		HandlePacket(buffer);
+	}
+	/*if (testP.CollidesWith(testE))
 	{
 		testP.DamageHealth(1);
 	}
@@ -130,7 +139,7 @@ void Game::Update()
 	{
 		std::cout << "Player Destroyed" << std::endl;
 		keepGoing = false;
-	}
+	}*/
 }
 
 void Game::Render()
@@ -142,8 +151,16 @@ void Game::Render()
 		DrawFPS(true, Black);
 		DrawFPS(false, White);
 	}
-	testP.Draw();
-	testE.Draw();
+	//Draw players
+	for (int i = 0; i < MaxPlayers; i++)
+	{
+		if (Players[i].GetID() != 0)
+		{
+			Players[i].Draw();
+		}
+	}
+	//testP.Draw();
+	//testE.Draw();
 	SDL_RenderPresent(renderer);
 	//SDL_UpdateWindowSurface( window );
 }
@@ -260,6 +277,8 @@ void Game::HandlePacket(char* buffer)
 		switch (buffer[3])
 		{
 			case 'A':
+				//Set the player's ID to the one given by the server
+				playerID = PlayerID;
 				std::cout << "Case : A" << std::endl;
 				break;
 			case 'X':
@@ -268,17 +287,79 @@ void Game::HandlePacket(char* buffer)
 		}
 		break;
 	case '2':
-		//deal with player ID if exists 1-2
-		PlayerID = CopyBuffer(1, 2, buffer);
-		iPlayerID = std::atoi(PlayerID.c_str());
-		std::cout << PlayerID << ":" << iPlayerID << std::endl;
-		//deal with action 3
-		switch (buffer[3])
+		//iterate each segment
+		int PlayerIDLen = 2;
+		bool PlayerFound = false;
+		int posLen = 10;
+		int statLen = 4;
+		std::string PlayerX;
+		int iPlayerX;
+		std::string PlayerY;
+		int iPlayerY;
+		std::string PlayerHP;
+		int iPlayerHP;
+		std::string PlayerMP;
+		int iPlayerMP;
+		int bufferIterator = 0;
+		while(bufferIterator < (int)strlen(buffer))
 		{
-			case 'S':
-				std::cout << "Case : S" << std::endl;
-				//UpdateGameState();
-				break;
+			bufferIterator++;
+			//get player ID 2 length
+			PlayerID = CopyBuffer(bufferIterator, PlayerIDLen, buffer);
+			iPlayerID = std::atoi(PlayerID.c_str());
+			std::cout << PlayerID << ":" << iPlayerID << std::endl;
+			//If player exists then update the coords, else create the character with given
+			bufferIterator += PlayerIDLen;
+			//get PlayerX
+			PlayerX = CopyBuffer(bufferIterator, posLen, buffer);
+			iPlayerX = std::atoi(PlayerX.c_str());
+			std::cout << PlayerX << ":" << iPlayerX << std::endl;
+			bufferIterator += posLen;
+			//get PlayerY
+			PlayerY = CopyBuffer(bufferIterator, posLen, buffer);
+			iPlayerY = std::atoi(PlayerY.c_str());
+			std::cout << PlayerY << ":" << iPlayerY << std::endl;
+			bufferIterator += posLen;
+			//get PlayerHP
+			PlayerHP = CopyBuffer(bufferIterator, statLen, buffer);
+			iPlayerHP = std::atoi(PlayerHP.c_str());
+			std::cout << PlayerHP << ":" << iPlayerHP << std::endl;
+			bufferIterator += statLen;
+			//get PlayerMP
+			PlayerMP = CopyBuffer(bufferIterator, statLen, buffer);
+			iPlayerMP = std::atoi(PlayerMP.c_str());
+			std::cout << PlayerMP << ":" << iPlayerMP << std::endl;
+			bufferIterator += statLen;
+
+			//Update Player
+			int i = 0;
+			while(!PlayerFound && i < MaxPlayers) 
+			{
+				if (Players[i].GetID() == iPlayerID)
+				{
+					PlayerFound = true;
+					Players[i].SetX(iPlayerX);
+					Players[i].SetY(iPlayerY);
+					Players[i].SetHP(iPlayerHP);
+					Players[i].SetMP(iPlayerMP);
+				}
+				i++;
+			}
+			if (!PlayerFound)
+			{
+				while (!PlayerFound && i < MaxPlayers)
+				{
+					if (Players[i].GetID() == 0)
+					{
+						PlayerFound = true;
+						Players[i].SetID(iPlayerID);
+						Players[i].SetX(iPlayerX);
+						Players[i].SetY(iPlayerY);
+						Players[i].SetHP(iPlayerHP);
+						Players[i].SetMP(iPlayerMP);
+					}
+				}
+			}
 		}
 		break;
 	}
