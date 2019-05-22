@@ -1,8 +1,6 @@
 #include "Player.h"
 #include <algorithm>
 
-
-
 Player::Player()
 {
 	Level = 1;

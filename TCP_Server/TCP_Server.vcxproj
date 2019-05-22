@@ -21,12 +21,16 @@
   <ItemGroup>
     <ClInclude Include="Client.h" />
     <ClInclude Include="ClientNetwork.h" />
+    <ClInclude Include="Entity.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="UDP_Server.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="ClientNetwork.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="UDP_Server.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

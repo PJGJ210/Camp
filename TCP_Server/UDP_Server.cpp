@@ -149,50 +149,69 @@ bool UDP_Server::ReceivePacket()
 	return false;
 }
 
+
 void UDP_Server::HandlePacket()
 {
+	std::string PlayerID;
+	int iPlayerID;
 	//deal with type of packet
 	std::cout << buffer[0] << std::endl;
 	switch (buffer[0])
 	{
 	case '1':
+		//deal with player ID if exists 1-2
+		PlayerID = CopyBuffer(1, 2);
+		iPlayerID = std::atoi(PlayerID.c_str());
+		std::cout << PlayerID << ":" << iPlayerID << std::endl;
+		//deal with action 3
+		switch (buffer[3])
+		{
+			case 'C':
+				//if playerID is 0 then make a new player and assign an ID
+				std::cout << "Case : C" << std::endl;
+				ConnectClient(PlayerID);
+				break;
+		}
 		break;
 	case '2':
+		//deal with player ID if exists 1-2
+		PlayerID = CopyBuffer(1, 2);
+		iPlayerID = std::atoi(PlayerID.c_str());
+		std::cout << PlayerID << ":" << iPlayerID << std::endl;
+		//deal with action 3
+		switch (buffer[3])
+		{
+			case 'X':
+				std::cout << "Case : X" << std::endl;
+				Broadcast("X : " + PlayerID);
+				break;
+		}
 		break;
 	case '3':
-		break;
-	}
-	//deal with player ID if exists 1-2
-	std::string PlayerID = CopyBuffer(1, 2);
-	int iPlayerID = std::atoi(PlayerID.c_str());
-	std::cout << PlayerID << ":" << iPlayerID <<  std::endl;
-	//deal with action 3
-	switch (buffer[3])
-	{
-	case 'C':
-		//if playerID is 0 then make a new player and assign an ID
-		std::cout << "Case : C" << std::endl;
-		ConnectClient(PlayerID);
-		break;
-	case 'X':
-		std::cout << "Case : X" << std::endl;
-		Broadcast("X : " + PlayerID);
-		break;
-	case 'L':
-		std::cout << "Case : L" << std::endl;
-		SendData("L");
-		break;
-	case 'U':
-		std::cout << "Case : U" << std::endl;
-		SendData("U");
-		break;
-	case 'D':
-		std::cout << "Case : D" << std::endl;
-		SendData("D");
-		break;
-	case 'R':
-		std::cout << "Case : R" << std::endl;
-		SendData("R");
+		//deal with player ID if exists 1-2
+		PlayerID = CopyBuffer(1, 2);
+		iPlayerID = std::atoi(PlayerID.c_str());
+		std::cout << PlayerID << ":" << iPlayerID << std::endl;
+		//deal with action 3
+		switch (buffer[3])
+		{
+			case 'L':
+				std::cout << "Case : L" << std::endl;
+				SendData("L");
+				break;
+			case 'U':
+				std::cout << "Case : U" << std::endl;
+				SendData("U");
+				break;
+			case 'D':
+				std::cout << "Case : D" << std::endl;
+				SendData("D");
+				break;
+			case 'R':
+				std::cout << "Case : R" << std::endl;
+				SendData("R");
+				break;
+		}
 		break;
 	}
 }
@@ -230,11 +249,14 @@ void UDP_Server::ConnectClient(std::string PlayerID)
 			}
 			else
 			{
+				//Assign Player ID
 				std::stringstream ss;
 				ss << std::setw(2) << std::setfill('0') << i+1;
 				std::string s = ss.str();
 				Clients[i].playerID = s;
 				std::cout << Clients[i].playerID << "New Assigned!" << std::endl;
+				Clients[i].NewPlayer();
+				//Send player acceptance w/ID
 				SendData("1"+ Clients[i].playerID + "A");
 				return;
 			}
