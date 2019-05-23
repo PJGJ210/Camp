@@ -363,6 +363,7 @@ void UDP_Server::ConnectClient(std::string PlayerID)
 				Clients[i].playerID = s;
 				std::cout << Clients[i].playerID << "New Assigned!" << std::endl;
 				Clients[i].NewPlayer();
+				Clients[i].Changed = true;
 				//Send player acceptance w/ID
 				SendData("1"+ Clients[i].playerID + "A");
 				return;
