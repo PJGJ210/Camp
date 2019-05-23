@@ -423,7 +423,7 @@ void Game::Loop()
 		Input();
 		//cout<<"updating"<<endl;
 		Update();
-		ptrClient->ReceiveData();
+		//ptrClient->ReceiveData();
 		//Sleep if spending update did not take enough time
 		if (elapsedTime.count() < updateTime) {
 			std::chrono::duration<double, std::milli> delta_ms(updateTime - elapsedTime.count());

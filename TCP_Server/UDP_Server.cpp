@@ -133,10 +133,7 @@ void UDP_Server::RunServer()
 	priorTime = std::chrono::system_clock::now();
 	while (running)
 	{
-		if (ReceivePacket())
-		{
-			HandlePacket();
-		}
+		ReceivePacket();
 		fpsTime = std::chrono::system_clock::now();
 		elapsedfpsTime = fpsTime - priorTime;
 		//do state x times per second
@@ -210,7 +207,7 @@ bool UDP_Server::ReceivePacket()
 		//Show client info
 		ZeroMemory(clientIP, clientIPLength);
 		inet_ntop(AF_INET, &clientData.sin_addr, clientIP, clientIPLength);
-
+		HandlePacket();
 		//std::cout << "Data Received From : " << clientIP << " : " << buffer << std::endl;
 		return true;
 	}
