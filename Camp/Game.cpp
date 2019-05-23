@@ -212,10 +212,14 @@ void Game::Input() {
 			std::cout << "e.wheel.y: " << e.wheel.y << std::endl;
 			if (e.wheel.y > 0)
 			{
+				FPS++;
+				updateTime = MStoS / FPS;
 				showFPS = true;
 			}
 			else if (e.wheel.y < 0) // scroll down
 			{
+				FPS--;
+				updateTime = MStoS / FPS;
 				showFPS = false;
 			}
 		}

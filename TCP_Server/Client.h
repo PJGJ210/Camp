@@ -13,6 +13,7 @@ public:
 	std::string GetplayerID();
 	~Client();
 
+	bool Changed;
 	ClientNetwork Network;
 	Player player;
 	std::string playerID;

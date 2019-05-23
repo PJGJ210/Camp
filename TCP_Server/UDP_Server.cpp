@@ -63,9 +63,9 @@ bool UDP_Server::InitServer()
 	for (int i = 0; i < MaxPlayers; i++)
 	{
 		Clients[i] = Client();
+		Clients[i].Changed = false;
 	}
 	//ZeroMemory(Clients, sizeof(Clients));
-
 	running = true;
 	return true;
 }
@@ -90,8 +90,9 @@ void UDP_Server::SendState()
 	for (int i = 0; i < MaxPlayers; i++)
 	{
 		//check for non 0 player ID
-		if (Clients[i].GetplayerID().compare("00") != 0)
+		if (Clients[i].Changed && Clients[i].GetplayerID().compare("00") != 0)
 		{
+			Clients[i].Changed = false;
 			//Add Identifier For State
 			StateString += "2";
 			//Add Player ID
@@ -128,25 +129,22 @@ void UDP_Server::RunServer()
 {
 	std::cout << "Starting Main Server Loop" << std::endl;
 	//Looooop
-	currentTime = std::chrono::system_clock::now();
 	fpsTime = std::chrono::system_clock::now();
 	priorTime = std::chrono::system_clock::now();
-	previousTime = currentTime;
 	while (running)
 	{
 		if (ReceivePacket())
 		{
 			HandlePacket();
 		}
-		if (elapsedTime.count() < updateTime) {
-			std::chrono::duration<double, std::milli> delta_ms(updateTime - elapsedTime.count());
-			auto delta_ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(delta_ms);
-			std::this_thread::sleep_for(std::chrono::milliseconds(delta_ms_duration.count()));
+		fpsTime = std::chrono::system_clock::now();
+		elapsedfpsTime = fpsTime - priorTime;
+		//do state x times per second
+		if (elapsedfpsTime.count() > updateTime)
+		{
+			SendState();
+			priorTime = fpsTime;
 		}
-
-		previousTime = std::chrono::system_clock::now();
-		sleepTime = previousTime - currentTime;
-		SendState();
 	}
 	std::cout << "Leaving Main Server Loop" << std::endl;
 }
@@ -240,6 +238,14 @@ void UDP_Server::HandlePacket()
 				//if playerID is 0 then make a new player and assign an ID
 				std::cout << "Case : C" << std::endl;
 				ConnectClient(PlayerID);
+				for (int i = 0; i < MaxPlayers; i++)
+				{
+					//std::cout << Clients[i].playerID << " : " << Clients[i].playerID.compare("00") << std::endl;
+					if (!Clients[i].playerID.compare("00") == 0)
+					{
+						Clients[i].Changed = true;
+					}
+				}
 				break;
 		}
 		break;
@@ -270,7 +276,10 @@ void UDP_Server::HandlePacket()
 				for (int i = 0; i < MaxPlayers; i++)
 				{
 					if (Clients[i].playerID.compare(PlayerID) == 0)
-						Clients[i].player.SetExPos(Clients[i].player.GetExPos() - 4.25f);
+					{
+						Clients[i].player.SetExPos(Clients[i].player.GetExPos() - 4.25f); 
+						Clients[i].Changed = true;
+					}
 				}
 				SendData("L");
 				break;
@@ -279,7 +288,10 @@ void UDP_Server::HandlePacket()
 				for (int i = 0; i < MaxPlayers; i++)
 				{
 					if (Clients[i].playerID.compare(PlayerID) == 0)
+					{
 						Clients[i].player.SetEyPos(Clients[i].player.GetEyPos() - 4.25f);
+						Clients[i].Changed = true;
+					}
 				}
 				SendData("U");
 				break;
@@ -288,7 +300,10 @@ void UDP_Server::HandlePacket()
 				for (int i = 0; i < MaxPlayers; i++)
 				{
 					if (Clients[i].playerID.compare(PlayerID) == 0)
+					{
 						Clients[i].player.SetEyPos(Clients[i].player.GetEyPos() + 4.25f);
+						Clients[i].Changed = true;
+					}
 				}
 				SendData("D");
 				break;
@@ -297,7 +312,10 @@ void UDP_Server::HandlePacket()
 				for (int i = 0; i < MaxPlayers; i++)
 				{
 					if (Clients[i].playerID.compare(PlayerID) == 0)
+					{
 						Clients[i].player.SetExPos(Clients[i].player.GetExPos() + 4.25f);
+						Clients[i].Changed = true;
+					}
 				}
 				SendData("R");
 				break;
@@ -323,7 +341,7 @@ void UDP_Server::ConnectClient(std::string PlayerID)
 	//check for an empty slot
 	for (int i = 0; i < MaxPlayers; i++)
 	{
-		std::cout << Clients[i].playerID << " : " << Clients[i].playerID.compare("00") << std::endl;
+		//std::cout << Clients[i].playerID << " : " << Clients[i].playerID.compare("00") << std::endl;
 		if (Clients[i].playerID.compare("00") == 0)
 		{
 			//Clients[i] = Client(clientData.sin_addr.S_un.S_addr, clientData.sin_port);
