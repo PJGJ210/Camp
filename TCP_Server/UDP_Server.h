@@ -47,7 +47,7 @@ public:
 	std::chrono::duration<double, std::milli> elapsedfpsTime;
 	std::chrono::duration<double, std::milli> elapsedTime;
 	std::chrono::duration<double, std::milli> sleepTime;
-	int updateTime;
+	double updateTime;
 	int FPS;
 	int CurrFPS;
 	const double MStoS = 1000.0;

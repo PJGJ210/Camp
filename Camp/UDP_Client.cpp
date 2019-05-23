@@ -90,7 +90,8 @@ char* UDP_Client::ReceiveData()
 {
 	ZeroMemory(buffer, bufferLength);
 	//get messages
-	if (bytesIn = recvfrom(sClient, buffer, bufferLength, 0, (sockaddr*)&serverData, &serverLength) >= 0)
+	bytesIn = recvfrom(sClient, buffer, bufferLength, 0, (sockaddr*)&serverData, &serverLength);
+	if (bytesIn >= 0)
 	{
 		if (bytesIn == SOCKET_ERROR)
 		{

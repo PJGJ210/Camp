@@ -77,13 +77,13 @@ void UDP_Server::SendState()
 	int posLen = 10;
 	int statLen = 4;
 	std::string PlayerX;
-	int iPlayerX;
+	//int iPlayerX;
 	std::string PlayerY;
-	int iPlayerY;
+	//int iPlayerY;
 	std::string PlayerHP;
-	int iPlayerHP;
+	//int iPlayerHP;
 	std::string PlayerMP;
-	int iPlayerMP;
+	//int iPlayerMP;
 	int bufferIterator = 0;
 
 	std::stringstream ss;
@@ -230,13 +230,13 @@ void UDP_Server::HandlePacket()
 		//deal with player ID if exists 1-2
 		PlayerID = CopyBuffer(1, 2);
 		iPlayerID = std::atoi(PlayerID.c_str());
-		std::cout << PlayerID << ":" << iPlayerID << std::endl;
+		//std::cout << PlayerID << ":" << iPlayerID << std::endl;
 		//deal with action 3
 		switch (buffer[3])
 		{
 			case 'C':
 				//if playerID is 0 then make a new player and assign an ID
-				std::cout << "Case : C" << std::endl;
+				//std::cout << "Case : C" << std::endl;
 				ConnectClient(PlayerID);
 				for (int i = 0; i < MaxPlayers; i++)
 				{
@@ -258,7 +258,7 @@ void UDP_Server::HandlePacket()
 		switch (buffer[3])
 		{
 			case 'X':
-				std::cout << "Case : X" << std::endl;
+				//std::cout << "Case : X" << std::endl;
 				Broadcast("X : " + PlayerID);
 				break;
 		}
@@ -347,7 +347,6 @@ void UDP_Server::ConnectClient(std::string PlayerID)
 			//Clients[i] = Client(clientData.sin_addr.S_un.S_addr, clientData.sin_port);
 			Clients[i] = Client(address, port);
 			std::cout << "Assigning" << std::endl;
-			char pID[2];
 			if (PlayerID.compare("00") != 0)
 			{
 				Clients[i].playerID = PlayerID;
@@ -373,6 +372,8 @@ void UDP_Server::ConnectClient(std::string PlayerID)
 	std::cout << "Server Full!" << std::endl;
 	SendData("100R");
 }
+
+
 
 std::string UDP_Server::CopyBuffer(int start, int end)
 {

@@ -193,13 +193,13 @@ void Game::Input() {
 
 			case SDLK_c:
 				outputdata = std::to_string(1) + playerID + "C";
-				std::cout << outputdata << std::endl;
+				//std::cout << outputdata << std::endl;
 				ptrClient->SendData(outputdata);
 				break;
 
 			case SDLK_x:
 				outputdata = std::to_string(2) + playerID + "X";
-				std::cout << outputdata << std::endl;
+				//std::cout << outputdata << std::endl;
 				ptrClient->SendData(outputdata);
 				break;
 
@@ -233,7 +233,7 @@ void Game::Input() {
 	if (keystates[SDL_SCANCODE_UP])
 	{
 		outputdata = std::to_string(3) + playerID + "U";
-		std::cout << outputdata << std::endl;
+		//std::cout << outputdata << std::endl;
 		ptrClient->SendData(outputdata);
 		for (int i = 0; i < MaxPlayers; i++)
 		{
@@ -242,12 +242,12 @@ void Game::Input() {
 		}
 		//testP.SetEyPos(testP.GetEyPos() - 4.25f);
 		//testP.HealHealth(1);
-		std::cout << "Up: " << std::endl;
+		//std::cout << "Up: " << std::endl;
 	}
 	if (keystates[SDL_SCANCODE_DOWN])
 	{
 		outputdata = std::to_string(3) + playerID + "D";
-		std::cout << outputdata << std::endl;
+		//std::cout << outputdata << std::endl;
 		ptrClient->SendData(outputdata);
 		for (int i = 0; i < MaxPlayers; i++)
 		{
@@ -256,12 +256,12 @@ void Game::Input() {
 		}
 		//testP.SetEyPos(testP.GetEyPos() + 4.25f);
 		//testP.HealMana(1);
-		std::cout << "Down: " << std::endl;
+		//std::cout << "Down: " << std::endl;
 	}
 	if (keystates[SDL_SCANCODE_LEFT])
 	{
 		outputdata = std::to_string(3) + playerID + "L";
-		std::cout << outputdata << std::endl;
+		//std::cout << outputdata << std::endl;
 		ptrClient->SendData(outputdata);
 		for (int i = 0; i < MaxPlayers; i++)
 		{
@@ -270,12 +270,12 @@ void Game::Input() {
 		}
 		//testP.SetExPos(testP.GetExPos() - 4.25f);
 		//testP.DamageMana(1);
-		std::cout << "Left: " << std::endl;
+		//std::cout << "Left: " << std::endl;
 	}
 	if (keystates[SDL_SCANCODE_RIGHT])
 	{
 		outputdata = std::to_string(3) + playerID + "R";
-		std::cout << outputdata << std::endl;
+		//std::cout << outputdata << std::endl;
 		ptrClient->SendData(outputdata);
 		for (int i = 0; i < MaxPlayers; i++)
 		{
@@ -284,7 +284,7 @@ void Game::Input() {
 		}
 		//testP.SetExPos(testP.GetExPos() + 4.25f);
 		//testP.DamageHealth(1);
-		std::cout << "Right: " << testP.Alive << std::endl;
+		//std::cout << "Right: " << testP.Alive << std::endl;
 	}
 }//end input
 
@@ -312,6 +312,9 @@ void Game::HandlePacket(char* buffer)
 				break;
 			case 'X':
 				std::cout << "Case : X" << std::endl;
+				break;
+			case 'R':
+				std::cout << "Case : Rejected" << std::endl;
 				break;
 		}
 		break;
@@ -378,7 +381,7 @@ void Game::HandlePacket(char* buffer)
 			i = 0;
 			while (!PlayerFound && i < MaxPlayers)
 			{
-				std::cout << Players[i].GetID() << (Players[i].GetID() == 0) << std::endl;
+				//std::cout << Players[i].GetID() << (Players[i].GetID() == 0) << std::endl;
 				if (Players[i].GetID() == 0)
 				{
 					PlayerFound = true;
