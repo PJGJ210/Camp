@@ -1,6 +1,7 @@
 #include "UDP_Server.h"
 #include <iostream>
 #include <WS2TCPip.h>
+#include <string>
 #include "Client.h"
 
 UDP_Server::UDP_Server()
@@ -11,12 +12,14 @@ UDP_Server::UDP_Server()
 		CloseServer();
 	}
 
-	std::cout << "Server Closed...";
+	//std::cout << "Server Closed...";
 	std::cin;
 }
 
 bool UDP_Server::InitServer()
 {
+	FPS = 30;
+	updateTime = MStoS / FPS;
 	//Winsock
 	wsVersion = MAKEWORD(2, 2);
 
@@ -67,28 +70,94 @@ bool UDP_Server::InitServer()
 	return true;
 }
 
+void UDP_Server::SendState()
+{
+	std::string StateString = "";
+	int IDLen = 2;
+	int posLen = 10;
+	int statLen = 4;
+	std::string PlayerX;
+	int iPlayerX;
+	std::string PlayerY;
+	int iPlayerY;
+	std::string PlayerHP;
+	int iPlayerHP;
+	std::string PlayerMP;
+	int iPlayerMP;
+	int bufferIterator = 0;
+
+	std::stringstream ss;
+	for (int i = 0; i < MaxPlayers; i++)
+	{
+		//check for non 0 player ID
+		if (Clients[i].GetplayerID().compare("00") != 0)
+		{
+			//Add Identifier For State
+			StateString += "2";
+			//Add Player ID
+			ss << std::setw(IDLen) << std::setfill('0') << Clients[i].GetplayerID();
+			StateString += ss.str();
+			ss.str("");
+			ss.clear();
+			//Add X Pos posLen
+			ss << std::setw(posLen) << std::setfill('0') << Clients[i].player.GetExPos();
+			StateString += ss.str();
+			ss.str("");
+			ss.clear();
+			//Add Y Pos posLen
+			ss << std::setw(posLen) << std::setfill('0') << Clients[i].player.GetEyPos();
+			StateString += ss.str();
+			ss.str("");
+			ss.clear();
+			//Add HP Pos statLen
+			ss << std::setw(statLen) << std::setfill('0') << Clients[i].player.GetHP();
+			StateString += ss.str();
+			ss.str("");
+			ss.clear();
+			//Add MP Pos statLen
+			ss << std::setw(statLen) << std::setfill('0') << Clients[i].player.GetMP();
+			StateString += ss.str();
+			ss.str("");
+			ss.clear();
+		}
+	}
+	Broadcast(StateString);
+}
+
 void UDP_Server::RunServer()
 {
 	std::cout << "Starting Main Server Loop" << std::endl;
 	//Looooop
+	currentTime = std::chrono::system_clock::now();
+	fpsTime = std::chrono::system_clock::now();
+	priorTime = std::chrono::system_clock::now();
+	previousTime = currentTime;
 	while (running)
 	{
 		if (ReceivePacket())
 		{
 			HandlePacket();
 		}
-		//SendData(buffer);
+		if (elapsedTime.count() < updateTime) {
+			std::chrono::duration<double, std::milli> delta_ms(updateTime - elapsedTime.count());
+			auto delta_ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(delta_ms);
+			std::this_thread::sleep_for(std::chrono::milliseconds(delta_ms_duration.count()));
+		}
+
+		previousTime = std::chrono::system_clock::now();
+		sleepTime = previousTime - currentTime;
+		SendState();
 	}
 	std::cout << "Leaving Main Server Loop" << std::endl;
 }
 
 void UDP_Server::SendData(std::string strData)
 {
-	if (sendto(sServer, strData.c_str(), sizeof(strData), 0, (sockaddr*)&clientData, clientLength) == SOCKET_ERROR)
+	if (sendto(sServer, strData.c_str(), strData.size(), 0, (sockaddr*)&clientData, clientLength) == SOCKET_ERROR)
 	{
 		std::cout << "Send Failed With : " << WSAGetLastError() << std::endl;
 	}
-	std::cout << "Data Sent" << std::endl;
+	//std::cout << "Data Sent" << std::endl;
 }
 
 void UDP_Server::Broadcast(std::string strData)
@@ -97,16 +166,17 @@ void UDP_Server::Broadcast(std::string strData)
 	{
 		if (Clients[i].playerID.compare("00") != 0)
 		{
-			std::cout << Clients[i].playerID.c_str() << std::endl;
+			//std::cout << Clients[i].playerID.c_str() << std::endl;
 			clientData.sin_addr.S_un.S_addr = Clients[i].Network.address;
 			clientData.sin_port = Clients[i].Network.port;
-			if (sendto(sServer, strData.c_str(), sizeof(strData), 0, (sockaddr*)&clientData, clientLength) == SOCKET_ERROR)
+			//std::cout << strData.c_str() << std::endl;
+			if (sendto(sServer, strData.c_str(), strData.size(), 0, (sockaddr*)&clientData, clientLength) == SOCKET_ERROR)
 			{
 				std::cout << "Send Failed With : " << WSAGetLastError() << std::endl;
 			}
 		}
 	}
-	std::cout << "Data Sent to All" << std::endl;
+	//std::cout << "Data Sent to All" << std::endl;
 }
 
 bool UDP_Server::ReceivePacket()
@@ -143,7 +213,7 @@ bool UDP_Server::ReceivePacket()
 		ZeroMemory(clientIP, clientIPLength);
 		inet_ntop(AF_INET, &clientData.sin_addr, clientIP, clientIPLength);
 
-		std::cout << "Data Received From : " << clientIP << " : " << buffer << std::endl;
+		//std::cout << "Data Received From : " << clientIP << " : " << buffer << std::endl;
 		return true;
 	}
 	return false;
@@ -155,7 +225,7 @@ void UDP_Server::HandlePacket()
 	std::string PlayerID;
 	int iPlayerID;
 	//deal with type of packet
-	std::cout << buffer[0] << std::endl;
+	//std::cout << buffer[0] << std::endl;
 	switch (buffer[0])
 	{
 	case '1':
@@ -191,24 +261,44 @@ void UDP_Server::HandlePacket()
 		//deal with player ID if exists 1-2
 		PlayerID = CopyBuffer(1, 2);
 		iPlayerID = std::atoi(PlayerID.c_str());
-		std::cout << PlayerID << ":" << iPlayerID << std::endl;
+		//std::cout << PlayerID << ":" << iPlayerID << std::endl;
 		//deal with action 3
 		switch (buffer[3])
 		{
 			case 'L':
-				std::cout << "Case : L" << std::endl;
+				//std::cout << "Case : L" << std::endl;
+				for (int i = 0; i < MaxPlayers; i++)
+				{
+					if (Clients[i].playerID.compare(PlayerID) == 0)
+						Clients[i].player.SetExPos(Clients[i].player.GetExPos() - 4.25f);
+				}
 				SendData("L");
 				break;
 			case 'U':
-				std::cout << "Case : U" << std::endl;
+				//std::cout << "Case : U" << std::endl;
+				for (int i = 0; i < MaxPlayers; i++)
+				{
+					if (Clients[i].playerID.compare(PlayerID) == 0)
+						Clients[i].player.SetEyPos(Clients[i].player.GetEyPos() - 4.25f);
+				}
 				SendData("U");
 				break;
 			case 'D':
-				std::cout << "Case : D" << std::endl;
+				//std::cout << "Case : D" << std::endl;
+				for (int i = 0; i < MaxPlayers; i++)
+				{
+					if (Clients[i].playerID.compare(PlayerID) == 0)
+						Clients[i].player.SetEyPos(Clients[i].player.GetEyPos() + 4.25f);
+				}
 				SendData("D");
 				break;
 			case 'R':
-				std::cout << "Case : R" << std::endl;
+				//std::cout << "Case : R" << std::endl;
+				for (int i = 0; i < MaxPlayers; i++)
+				{
+					if (Clients[i].playerID.compare(PlayerID) == 0)
+						Clients[i].player.SetExPos(Clients[i].player.GetExPos() + 4.25f);
+				}
 				SendData("R");
 				break;
 		}

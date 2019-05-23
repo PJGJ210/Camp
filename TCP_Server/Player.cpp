@@ -3,6 +3,8 @@
 
 Player::Player()
 {
+	Entity::Entity();
+	PlayerID = 0;
 	Level = 1;
 	Experience = 0;
 	Alive = true;
@@ -51,6 +53,51 @@ void Player::DamageMana(int amount)
 	{
 		Mana = 0;
 	}
+}
+
+void Player::SetX(int x)
+{
+	this->SetExPos((float)x);
+}
+
+void Player::SetY(int y)
+{
+	this->SetEyPos((float)y);
+}
+
+void Player::SetHP(int hp)
+{
+	this->Health = hp;
+}
+
+void Player::SetMP(int mp)
+{
+	this->Mana = mp;
+}
+
+void Player::SetID(int id)
+{
+	this->PlayerID = id;
+}
+
+float Player::GetX()
+{
+	return (float)this->GetExPos();
+}
+
+float Player::GetY()
+{
+	return (float)this->GetEyPos();
+}
+
+int Player::GetHP()
+{
+	return this->Health;
+}
+
+int Player::GetMP()
+{
+	return this->Mana;
 }
 
 void Player::Update()

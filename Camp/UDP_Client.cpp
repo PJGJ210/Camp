@@ -103,7 +103,7 @@ char* UDP_Client::ReceiveData()
 		inet_ntop(AF_INET, &serverData.sin_addr, serverIP, serverIPLength);
 		if (buffer > 0)
 		{
-			std::cout << "Data Received From : " << serverIP << " : " << buffer << std::endl;
+			//std::cout << "Data Received From : " << serverIP << " : " << buffer << std::endl;
 			return buffer;
 		}
 		else

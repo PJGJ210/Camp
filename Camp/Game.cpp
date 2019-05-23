@@ -36,18 +36,12 @@ void Game::init()
 	//Booleans
 	showFPS = true;
 	keepGoing = true;
-	playerID = "00";
-	Players = new Player[10];
-	for (int i = 0; i < MaxPlayers; i++)
-	{
-		Players[i] = Player();
-	}
 	keystates = SDL_GetKeyboardState(NULL);
 
 	std::cout << "SDL Init" << std::endl;
 	InitSDL();
-	InitEntity();
 	InitMedia();
+	InitEntity();
 }
 
 void Game::InitSDL()
@@ -62,6 +56,14 @@ void Game::InitSDL()
 
 void Game::InitEntity()
 {
+	playerID = "00";
+	Players = new Player[10];
+	for (int i = 0; i < MaxPlayers; i++)
+	{
+		Players[i] = Player();
+		Players[i].SetRenderer(renderer);
+		Players[i].SetTexture("Media/images/Hole.png");
+	}
 	//testP.SetRenderer(renderer);
 	//testE.SetRenderer(renderer);
 	//testE.SetExPos(testP.GetExPos() + 500);
@@ -154,8 +156,10 @@ void Game::Render()
 	//Draw players
 	for (int i = 0; i < MaxPlayers; i++)
 	{
+		//std::cout << Players[i].GetID() << (Players[i].GetID() != 0) << std::endl;
 		if (Players[i].GetID() != 0)
 		{
+			//std::cout << "Drawing " << Players[i].GetID() << std::endl;
 			Players[i].Draw();
 		}
 	}
@@ -176,27 +180,15 @@ void Game::Input() {
 			switch (e.key.keysym.sym)
 			{
 			case SDLK_UP:
-				outputdata = std::to_string(3) + playerID + "U";
-				std::cout << outputdata << std::endl;
-				ptrClient->SendData(outputdata);
 				break;
 
 			case SDLK_DOWN:
-				outputdata = std::to_string(3) + playerID + "D";
-				std::cout << outputdata << std::endl;
-				ptrClient->SendData(outputdata);
 				break;
 
 			case SDLK_LEFT:
-				outputdata = std::to_string(3) + playerID + "L";
-				std::cout << outputdata << std::endl;
-				ptrClient->SendData(outputdata);
 				break;
 
 			case SDLK_RIGHT:
-				outputdata = std::to_string(3) + playerID + "R";
-				std::cout << outputdata << std::endl;
-				ptrClient->SendData(outputdata);
 				break;
 
 			case SDLK_c:
@@ -233,27 +225,60 @@ void Game::Input() {
 			keepGoing = false;
 		}
 	}//end while event
+	std::string outputdata;
 	if (keystates[SDL_SCANCODE_UP])
 	{
-		testP.SetEyPos(testP.GetEyPos() - 4.25f);
+		outputdata = std::to_string(3) + playerID + "U";
+		std::cout << outputdata << std::endl;
+		ptrClient->SendData(outputdata);
+		for (int i = 0; i < MaxPlayers; i++)
+		{
+			if (Players[i].GetID() == std::atoi(playerID.c_str()))
+				Players[i].SetEyPos(Players[i].GetEyPos() - 4.25f);
+		}
+		//testP.SetEyPos(testP.GetEyPos() - 4.25f);
 		//testP.HealHealth(1);
 		std::cout << "Up: " << std::endl;
 	}
 	if (keystates[SDL_SCANCODE_DOWN])
 	{
-		testP.SetEyPos(testP.GetEyPos() + 4.25f);
+		outputdata = std::to_string(3) + playerID + "D";
+		std::cout << outputdata << std::endl;
+		ptrClient->SendData(outputdata);
+		for (int i = 0; i < MaxPlayers; i++)
+		{
+			if (Players[i].GetID() == std::atoi(playerID.c_str()))
+				Players[i].SetEyPos(Players[i].GetEyPos() + 4.25f);
+		}
+		//testP.SetEyPos(testP.GetEyPos() + 4.25f);
 		//testP.HealMana(1);
 		std::cout << "Down: " << std::endl;
 	}
 	if (keystates[SDL_SCANCODE_LEFT])
 	{
-		testP.SetExPos(testP.GetExPos() - 4.25f);
+		outputdata = std::to_string(3) + playerID + "L";
+		std::cout << outputdata << std::endl;
+		ptrClient->SendData(outputdata);
+		for (int i = 0; i < MaxPlayers; i++)
+		{
+			if (Players[i].GetID() == std::atoi(playerID.c_str()))
+				Players[i].SetExPos(Players[i].GetExPos() - 4.25f);
+		}
+		//testP.SetExPos(testP.GetExPos() - 4.25f);
 		//testP.DamageMana(1);
 		std::cout << "Left: " << std::endl;
 	}
 	if (keystates[SDL_SCANCODE_RIGHT])
 	{
-		testP.SetExPos(testP.GetExPos() + 4.25f);
+		outputdata = std::to_string(3) + playerID + "R";
+		std::cout << outputdata << std::endl;
+		ptrClient->SendData(outputdata);
+		for (int i = 0; i < MaxPlayers; i++)
+		{
+			if (Players[i].GetID() == std::atoi(playerID.c_str()))
+				Players[i].SetExPos(Players[i].GetExPos() + 4.25f);
+		}
+		//testP.SetExPos(testP.GetExPos() + 4.25f);
 		//testP.DamageHealth(1);
 		std::cout << "Right: " << testP.Alive << std::endl;
 	}
@@ -265,7 +290,7 @@ void Game::HandlePacket(char* buffer)
 	std::string PlayerID;
 	int iPlayerID;
 	//deal with type of packet
-	std::cout << ptrClient->buffer[0] << std::endl;
+	//std::cout << ptrClient->buffer[0] << std::endl;
 	switch (buffer[0])
 	{
 	case '1':
@@ -289,7 +314,6 @@ void Game::HandlePacket(char* buffer)
 	case '2':
 		//iterate each segment
 		int PlayerIDLen = 2;
-		bool PlayerFound = false;
 		int posLen = 10;
 		int statLen = 4;
 		std::string PlayerX;
@@ -303,41 +327,43 @@ void Game::HandlePacket(char* buffer)
 		int bufferIterator = 0;
 		while(bufferIterator < (int)strlen(buffer))
 		{
+			bool PlayerFound = false;
 			bufferIterator++;
 			//get player ID 2 length
-			PlayerID = CopyBuffer(bufferIterator, PlayerIDLen, buffer);
+			PlayerID = CopyBuffer(bufferIterator, bufferIterator - 1 + PlayerIDLen, buffer);
 			iPlayerID = std::atoi(PlayerID.c_str());
-			std::cout << PlayerID << ":" << iPlayerID << std::endl;
-			//If player exists then update the coords, else create the character with given
+			//std::cout << PlayerID << ":" << iPlayerID << std::endl;
 			bufferIterator += PlayerIDLen;
 			//get PlayerX
-			PlayerX = CopyBuffer(bufferIterator, posLen, buffer);
+			PlayerX = CopyBuffer(bufferIterator, bufferIterator - 1 + posLen, buffer);
 			iPlayerX = std::atoi(PlayerX.c_str());
-			std::cout << PlayerX << ":" << iPlayerX << std::endl;
+			//std::cout << PlayerX << ":" << iPlayerX << std::endl;
 			bufferIterator += posLen;
 			//get PlayerY
-			PlayerY = CopyBuffer(bufferIterator, posLen, buffer);
+			PlayerY = CopyBuffer(bufferIterator, bufferIterator - 1 + posLen, buffer);
 			iPlayerY = std::atoi(PlayerY.c_str());
-			std::cout << PlayerY << ":" << iPlayerY << std::endl;
+			//std::cout << PlayerY << ":" << iPlayerY << std::endl;
 			bufferIterator += posLen;
 			//get PlayerHP
-			PlayerHP = CopyBuffer(bufferIterator, statLen, buffer);
+			PlayerHP = CopyBuffer(bufferIterator, bufferIterator - 1 + statLen, buffer);
 			iPlayerHP = std::atoi(PlayerHP.c_str());
-			std::cout << PlayerHP << ":" << iPlayerHP << std::endl;
+			//std::cout << PlayerHP << ":" << iPlayerHP << std::endl;
 			bufferIterator += statLen;
 			//get PlayerMP
-			PlayerMP = CopyBuffer(bufferIterator, statLen, buffer);
+			PlayerMP = CopyBuffer(bufferIterator, bufferIterator - 1 + statLen, buffer);
 			iPlayerMP = std::atoi(PlayerMP.c_str());
-			std::cout << PlayerMP << ":" << iPlayerMP << std::endl;
+			//std::cout << PlayerMP << ":" << iPlayerMP << std::endl;
 			bufferIterator += statLen;
 
 			//Update Player
+			//If player exists then update the coords, else create the character with given
 			int i = 0;
 			while(!PlayerFound && i < MaxPlayers) 
 			{
 				if (Players[i].GetID() == iPlayerID)
 				{
 					PlayerFound = true;
+					Players[i].SetID(iPlayerID);
 					Players[i].SetX(iPlayerX);
 					Players[i].SetY(iPlayerY);
 					Players[i].SetHP(iPlayerHP);
@@ -345,20 +371,21 @@ void Game::HandlePacket(char* buffer)
 				}
 				i++;
 			}
-			if (!PlayerFound)
+			i = 0;
+			while (!PlayerFound && i < MaxPlayers)
 			{
-				while (!PlayerFound && i < MaxPlayers)
+				std::cout << Players[i].GetID() << (Players[i].GetID() == 0) << std::endl;
+				if (Players[i].GetID() == 0)
 				{
-					if (Players[i].GetID() == 0)
-					{
-						PlayerFound = true;
-						Players[i].SetID(iPlayerID);
-						Players[i].SetX(iPlayerX);
-						Players[i].SetY(iPlayerY);
-						Players[i].SetHP(iPlayerHP);
-						Players[i].SetMP(iPlayerMP);
-					}
+					PlayerFound = true;
+					Players[i].SetID(iPlayerID);
+					Players[i].SetX(iPlayerX);
+					Players[i].SetY(iPlayerY);
+					Players[i].SetHP(iPlayerHP);
+					Players[i].SetMP(iPlayerMP);
+					std::cout << "Player " << iPlayerID << " built" << std::endl;
 				}
+				i++;
 			}
 		}
 		break;
@@ -463,8 +490,8 @@ bool Game::loadMedia()
 	}
 	//Load Textures
 	std::cout << "Loading Player Media" << std::endl;
-	testP.SetTexture("Media/images/Hole.png");
-	testE.SetTexture("Media/images/Hole_R.png");
+	//testP.SetTexture("Media/images/Hole.png");
+	//testE.SetTexture("Media/images/Hole_R.png");
 	std::cout << "Player Media Loaded" << std::endl;
 	return success;
 }

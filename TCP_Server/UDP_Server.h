@@ -5,6 +5,8 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <chrono>
+#include <thread>
 
 
 class UDP_Server
@@ -27,6 +29,7 @@ public:
 	};
 
 	bool InitServer();
+	void SendState();
 	void RunServer();
 	void SendData(std::string strData);
 	void Broadcast(std::string strData);
@@ -35,6 +38,20 @@ public:
 	void ConnectClient(std::string PlayerID);
 	std::string CopyBuffer(int start, int end);
 	void CloseServer();
+
+	//Doubles
+	std::chrono::system_clock::time_point previousTime;
+	std::chrono::system_clock::time_point currentTime;
+	std::chrono::system_clock::time_point fpsTime;
+	std::chrono::system_clock::time_point priorTime;
+	std::chrono::duration<double, std::milli> elapsedfpsTime;
+	std::chrono::duration<double, std::milli> elapsedTime;
+	std::chrono::duration<double, std::milli> sleepTime;
+	int updateTime;
+	int FPS;
+	int CurrFPS;
+	const double MStoS = 1000.0;
+	const double NStoMS = 1000000.0;
 
 	//WinSOCK
 	WSADATA wsData;
